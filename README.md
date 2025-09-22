@@ -12,13 +12,13 @@
 
 试运行请在项目根目录使用命令：
 ```bin/tensor -```
-并键入 `boot`，`reg` `clear` `exit`.
+并键入 `boot`，`reg`，`clear`，`exit`.
 
 版本和帮助信息请使用命令：
 ```bin/tensor --version```
 ```bin/tensor --help```
 
 如需运行时关闭日志输出，请使用命令：
-``bin/tensor --quiet```
+```bin/tensor --quiet```
 
 EOF
