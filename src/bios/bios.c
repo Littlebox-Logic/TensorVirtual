@@ -1,0 +1,66 @@
+// Tensor VM - bios/bios.c
+
+#include "bios.h"
+#include "../log.h"
+#include "../vmdisk/vmfloppy.h"
+
+#include <stdlib.h>
+
+/* BIOS 启动流程
+ * 
+ * 1) CPU 复位, 从 0xFFFF0 (CS = 0xF000, IP = 0xFFFF0) 开始执行;
+ * 2) POST (上电自检, Power-On Self-Test), 可略去;
+ * 3) 初始化硬件设备;
+ * 4) 搜索可引导设备;
+ * 5) 加载 MBR 到 0x7C00, 跳转执行.
+ */
+
+void show_mbr_sector(uint8_t *boot_sector)
+{
+	for (uint16_t index = 0; index < 512; index++)
+	{
+		if (index % 16 == 0) printf("\n\t\033[0m%03X: ", index);
+		printf(boot_sector[index] ? "\033[;92m%02X " : "\033[;97m%02X ", boot_sector[index]);
+	}
+
+	printf("\n\033[0m");
+}
+
+int bios_init(void)
+{
+	vmfloppy image_A;
+
+	Log(INFO, "Initialing BIOS.");
+	Log(DEBUG, "Skipped Power-On Self-Test (POST).");
+	// 初始化硬件设备暂时略去.
+	// 暂定引导设备为 boot.img (1.44 MiB)
+	if ((image_A = insert_flp("boot.img", 'A')) == NULL)	goto FAIL;
+	if (load_floppy(image_A))
+	{
+		destroy_img(image_A, true);
+		goto FAIL;
+	}
+
+	uint8_t boot_sector[512] = {0};
+	fread(boot_sector, 1, 512, image_A->img_record);
+
+	if (boot_sector[510] == 0x55 && boot_sector[511] == 0xaa)
+	{
+		Log(INFO, "Detected Boot Sector Flag: 0x55AA");
+		printf("  MBR Sector:");
+		show_mbr_sector(boot_sector);
+	}
+	else
+	{
+		Log(ERROR, "No Boot Sector Flag Found. Shutdown.");
+		destroy_img(image_A, false);
+		return EXIT_FAILURE;
+	}
+
+	destroy_img(image_A, false);
+	return 0;
+
+FAIL:
+	Log(ERROR, "Failed to initialize BIOS: No-Floppy.");
+	return EXIT_FAILURE;
+}
