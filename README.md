@@ -11,14 +11,18 @@
 `boot.img` 是一个引导识别测试文件，由 `src/boot.asm` 编译得到，无其他作用.
 
 试运行请在项目根目录使用命令：
+
 ```bin/tensor -```
+
 并键入 `boot`，`reg`，`clear`，`exit`.
 
 版本和帮助信息请使用命令：
+
 ```bin/tensor --version```
 ```bin/tensor --help```
 
 如需运行时关闭日志输出，请使用命令：
+
 ```bin/tensor --quiet```
 
 EOF
