@@ -30,11 +30,10 @@ int main(int argc, char *argv[], char **envp)
 	if (!strcmp(argv[1], "--version"))	return 0;
 	if (!strcmp(argv[1], "--quiet"))	log_enabled = false;
 
-	Log(INFO, "Tensor VM is initializing.");
+	Log(INFO, "Tensor VM is initializing.\n");
 
 	if (uname(&sysinfo) == 0)
 	{
-		putchar('\n');
 		Log(INFO, "OS TYPE\t: %s", sysinfo.sysname);
 		Log(INFO, "OS RELEASE\t: %s", sysinfo.release);
 		Log(INFO, "OS VERSION\t: %s", sysinfo.version);

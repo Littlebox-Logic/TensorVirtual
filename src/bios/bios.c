@@ -3,8 +3,11 @@
 #include "bios.h"
 #include "../log.h"
 #include "../vmdisk/vmfloppy.h"
+#include "../memory/x86_mem.h"
+#include "../cpu/x86_cpu.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /* BIOS 启动流程
  * 
@@ -57,6 +60,17 @@ int bios_init(void)
 		return EXIT_FAILURE;
 	}
 
+	memcpy(&(vmram->ram[0x7c00]), boot_sector, 512);
+	Log(INFO, "Loaded MBR Sector to VMRAM. at 0x\033[;97m7c00\033[0m.");
+
+	reg->cs = 0x07c0;
+	reg->ip = 0x0000;
+	Log(INFO, "Set Registers \033[;92mCS:IP\033[;97m -> \033[;32m0x\033[;92m07C0\033[;32m:0x\033[;92m0000\033[;97m -> \033[;32m0x\033[;92m7C00\033[;97m.");
+
+	Log(INFO, "Calling CPU to execute MBR instructions...");
+	exec();
+
+	Log(INFO, "Distroying virtual image: A:...");
 	destroy_img(image_A, false);
 	return 0;
 

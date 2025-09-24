@@ -14,4 +14,7 @@ void show_reg(void);
 extern reg_p reg;
 inline void cpu_destroy(void) {free(reg);}
 
+void exec(void);
+int instr_parse(uint16_t);
+
 #endif
