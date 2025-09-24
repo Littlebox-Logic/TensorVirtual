@@ -44,15 +44,16 @@ void show_reg(void)
 									reg->ip, reg->flags);
 }
 
-inline int instr_parse(uint16_t addr)
+int instr_parse(uint16_t addr)
 {
-	;
+	return 1;
 }
 
 void exec(void)
 {
-	while (!(exec_status = instr_parse(reg->cs << 4 + reg_ip)));
+	int exec_status;
+	while (!(exec_status = instr_parse((reg->cs << 4) + reg->ip)));
 
-	if (exec status == 1)	Log(INFO, "<CPU executing terminated.>");
-	else					Log(INFO, "<CPU executing dead - \033[;31mcode: \033[;91m%d\033[;97m>", exec_status);
+	if (exec_status == 1)	{Log(INFO, "<CPU executing terminated.>");}
+	else					{Log(INFO, "<CPU executing dead - \033[;31mcode: \033[;91m%d\033[;97m>", exec_status);}
 }
