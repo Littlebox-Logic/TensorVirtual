@@ -1,6 +1,10 @@
 // Tensor VM - cpu/instr_set.c
 
+#include <string.h>
+
 #include "instr_set.h"
+#include "x86_cpu.h"
+#include "../memory/x86_mem.h"
 #include "../log.h"
 
 /* __________________________________________________________________
@@ -38,13 +42,77 @@
  * ______________________________________________________________________________
  */
 
+// Stack's physical address: "SS << 4 + SP" (push: SP-, pop: SP+)
+// SS: "Stack Segment Register"
+// SP: "Stack Pointer Register" (16-bit: 0x0000 -> 0xFFFF)
+// Max stack segment: 64 KiB
+
 int operation_parse(uint16_t addr)
 {
-	switch (vmram[addr])
+	switch (vmram->ram[addr])
 	{
-		case 0x40: ;
-		default: ;
+		case 0x40: reg->ax++; break;	// INC <Reg> single-byte operate code.
+		case 0x41: reg->cx++; break;
+		case 0x42: reg->dx++; break;
+		case 0x43: reg->bx++; break;
+		case 0x44: reg->sp++; break;
+		case 0x45: reg->bp++; break;
+		case 0x46: reg->si++; break;
+		case 0x47: reg->di++; break;
+
+		case 0x48: reg->ax--; break;	// DEC <Reg> single-byte operate code.
+		case 0x49: reg->cx--; break;
+		case 0x4A: reg->dx--; break;
+		case 0x4B: reg->bx--; break;
+		case 0x4C: reg->sp--; break;
+		case 0x4D: reg->bp--; break;
+		case 0x4E: reg->si--; break;
+		case 0x4F: reg->di--; break;
+
+		case 0x50:						// PUSH <Reg> single-byte operate code.
+			reg->sp -= 2;
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->ax, 2);
+			break;
+		case 0x51:
+			reg->sp -= 2;
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->cx, 2);
+			break;
+		case 0x52:
+			reg->sp -= 2;
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->dx, 2);
+			break;
+		case 0x53:
+			reg->sp -= 2;
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->bx, 2);
+			break;
+		case 0x54:
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->sp, 2); // Special operation order.
+			reg->sp -= 2;
+			break;
+		case 0x55:
+			reg->sp -= 2;
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->bp, 2);
+			break;
+		case 0x56:
+			reg->sp -= 2;
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->si, 2);
+			break;
+		case 0x57:
+			reg->sp -= 2;
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->di, 2);
+			break;
+
+		case 0x90: ;					// NOP single-byte operate code.
+
+		default:
+			if (reg->ip < 0xFFFF)	reg->ip++;
+			else
+			{
+				reg->cs++;
+				reg->ip = 0x0000;
+			}
 	}
+
 	return 0;
 }
 

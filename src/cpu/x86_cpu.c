@@ -4,6 +4,7 @@
 
 #include "x86_cpu.h"
 #include "register.h"
+#include "instr_set.h"
 #include "../log.h"
 
 reg_p reg = NULL;
@@ -27,8 +28,10 @@ void cpu_reset(void)
 	reg->ip = 0xFFF0;
 	reg->ax = reg->bx = reg->cx = reg->dx = 0x0000;
 	reg->ds = reg->es = reg->ss = 0x0000;
+	reg->sp = 0x0400;
 	reg->flags = 0x0002;
 	Log(INFO, "CPU has been RESET.");
+	Log(INFO, "Stack base \033[;92mSS:SP\033[;97m -> \033[;32m0x\033[;92m0000\033[;32m:0x\033[;92m0400\033[;97m; size: \033[;92m1 KiB\033[;97m.");
 }
 
 void show_reg(void)
@@ -46,7 +49,7 @@ void show_reg(void)
 
 int instr_parse(uint16_t addr)
 {
-	return 1;
+	return operation_parse(addr) ? -1 : 1;
 }
 
 void exec(void)
