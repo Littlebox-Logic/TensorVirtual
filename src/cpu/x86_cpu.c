@@ -49,7 +49,7 @@ void show_reg(void)
 
 int instr_parse(uint16_t addr)
 {
-	return operation_parse(addr) ? -1 : 1;
+	return operation_parse(addr); // ? -1 : 1;
 }
 
 void exec(void)

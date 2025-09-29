@@ -104,13 +104,16 @@ int operation_parse(uint16_t addr)
 
 		case 0x90: ;					// NOP single-byte operate code.
 
-		default:
-			if (reg->ip < 0xFFFF)	reg->ip++;
-			else
-			{
-				reg->cs++;
-				reg->ip = 0x0000;
-			}
+		case 0xF4:						// CPU Pause.
+			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m -> CPU pause.");
+			return 1;
+	}
+
+	if (reg->ip < 0xFFFF)	reg->ip++;
+	else
+	{
+		reg->cs++;
+		reg->ip = 0x0000;
 	}
 
 	return 0;
