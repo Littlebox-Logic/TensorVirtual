@@ -14,7 +14,7 @@
 
 ```bin/tensor -```
 
-并键入：`boot` `reg` `clear` `exit`
+并键入：`boot` `reg` `clear` `exit` `c` `instr`
 
 版本和帮助信息请使用命令：
 

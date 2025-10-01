@@ -31,25 +31,30 @@
  * ______________________________________________________________________________
  * | ModR/M reg/opcode	|	Instruction	|	Description							|
  * ______________________________________________________________________________
- * | 000b				|	ADD			|										|
- * | 001b				|	OR			|										|
- * | 010b				|	ADC			|	Add with carry       (tgt+src+CF)	|
- * | 011b				|	SBB			|	Subtract with borrow (tgt-src-CF)	|
- * | 100b				|	AND			|										|
- * | 101b				|	SUB			|										|
- * | 110b				|	XOR			|										|
- * | 111b				|	CMP			|	Compare (Sub)						|
+ * | 000b	0			|	ADD			|										|
+ * | 001b	1			|	OR			|										|
+ * | 010b	2			|	ADC			|	Add with carry       (tgt+src+CF)	|
+ * | 011b	3			|	SBB			|	Subtract with borrow (tgt-src-CF)	|
+ * | 100b	4			|	AND			|										|
+ * | 101b	5			|	SUB			|										|
+ * | 110b	6			|	XOR			|										|
+ * | 111b	7			|	CMP			|	Compare (Sub)						|
  * ______________________________________________________________________________
  */
 
 /* ______________________________________________________________________________
- * | Operation Code Group (First byte: 0xFF)									|
+ * | Operation Code Group (First byte: 0xFF)	0b11-reg-r/m -> 8-bit			|
  * ______________________________________________________________________________
- * | ModR/M reg/opcode	|	Instruction	|	Description							|
+ * | ModR/M reg/opcode	|	Instruction		|	Description						|
  * ______________________________________________________________________________
- * |
- *
- *
+ * | 000b	0			|	INC  r/m16		|	
+ * | 001b	1			|	DEC  r/m16		|
+ * | 010b	2			|	CALL r/m16		|
+ * | 011b	3			|	CALL far m16:16	|
+ * | 100b	4			|	JMP  r/m16		|
+ * | 101b	5			|	JMP  far m16:16	|
+ * | 110b	6			|	PUSH r/m16		|
+ * ______________________________________________________________________________
  */
 
 // Stack's physical address: "SS << 4 + SP" (push: SP-, pop: SP+)
@@ -77,7 +82,7 @@ void next_instr(uint8_t instr_length)
 
 int operation_parse(uint32_t addr)
 {
-	uint8_t instr_length = 1;			// Default: single-bype operate code.
+	uint8_t instr_length = 1;			// Default: single-byte operate code.
 
 	switch (vmram->ram[addr])
 	{
@@ -137,6 +142,21 @@ int operation_parse(uint32_t addr)
 		case 0xF4:						// CPU Pause.
 			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m at \033[;32m0x\033[;92m%05X\033[;97m (code: \033[;32m0x\033[;92m%02X\033[;97m) -> CPU pause.", addr, vmram->ram[addr]);
 			return 1;
+
+		case 0xFF:
+			switch ((vmram->ram[addr + 1] >> 3) & 0b11111)
+			{
+				case 0b11000: break;	// INC  r/m16
+				case 0b11001: break;	// DEC  r/m16
+				case 0b11010: break;	// CALL r/m16
+				case 0b11011: break;	// CALL far m16:16
+				case 0b11100: break;	// JMP  r/m16
+				case 0b11101: break;	// JMP  far m16:16
+				case 0b11110: break;	// PUSH r/m16
+			}
+
+			instr_length = 3;
+			break;
 	}
 
 	next_instr(instr_length);
