@@ -2,7 +2,6 @@
 
 #include "bios.h"
 #include "../log.h"
-#include "../vmdisk/vmfloppy.h"
 #include "../memory/x86_mem.h"
 #include "../cpu/x86_cpu.h"
 
@@ -18,6 +17,8 @@
  * 5) 加载 MBR 到 0x7C00, 跳转执行.
  */
 
+vmfloppy image_A;
+
 void show_mbr_sector(uint8_t *boot_sector)
 {
 	for (uint16_t index = 0; index < 512; index++)
@@ -31,8 +32,6 @@ void show_mbr_sector(uint8_t *boot_sector)
 
 int bios_init(void)
 {
-	vmfloppy image_A;
-
 	Log(INFO, "Initialing BIOS.");
 	Log(DEBUG, "Skipped Power-On Self-Test (POST).");
 	// 初始化硬件设备暂时略去.
@@ -68,7 +67,7 @@ int bios_init(void)
 	Log(INFO, "Set Registers \033[;92mCS:IP\033[;97m -> \033[;32m0x\033[;92m07C0\033[;32m:0x\033[;92m0000\033[;97m -> \033[;32m0x\033[;92m7C00\033[;97m.");
 
 	Log(INFO, "Calling CPU to execute MBR instructions...");
-	exec();
+	if (exec() == 1)	return 0;	// Status code: 1 -> CPU Pause.
 
 	Log(INFO, "Distroying virtual image: A:...");
 	destroy_img(image_A, false);

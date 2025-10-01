@@ -65,9 +65,11 @@ int main(int argc, char *argv[], char **envp)
 			break;
 		}
 
-		if (!strcmp(input, "reg"))	show_reg();
-		if (!strcmp(input, "boot"))	vm_boot();
-		if (!strcmp(input, "clear")) system("clear");
+		if (!strcmp(input, "reg"))		show_reg();
+		if (!strcmp(input, "boot"))		vm_boot();
+		if (!strcmp(input, "c"))		vm_continue();
+		if (!strcmp(input, "instr"))	show_instr();
+		if (!strcmp(input, "clear"))	system("clear");
 
 		memset(input, '\0', 256);
 	}

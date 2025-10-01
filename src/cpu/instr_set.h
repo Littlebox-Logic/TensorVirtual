@@ -10,6 +10,8 @@
 // inline void mov_reg_reg(uint8_t, uint8_t);
 // inline void mov_reg_data(uint8_t, int16_t);
 
-int operation_parse(uint16_t);
+int  operation_parse(uint32_t);
+void csip_debug(void);
+void next_instr(uint8_t);
 
 #endif

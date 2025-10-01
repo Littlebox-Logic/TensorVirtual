@@ -42,13 +42,43 @@
  * ______________________________________________________________________________
  */
 
+/* ______________________________________________________________________________
+ * | Operation Code Group (First byte: 0xFF)									|
+ * ______________________________________________________________________________
+ * | ModR/M reg/opcode	|	Instruction	|	Description							|
+ * ______________________________________________________________________________
+ * |
+ *
+ *
+ */
+
 // Stack's physical address: "SS << 4 + SP" (push: SP-, pop: SP+)
 // SS: "Stack Segment Register"
 // SP: "Stack Pointer Register" (16-bit: 0x0000 -> 0xFFFF)
 // Max stack segment: 64 KiB
 
-int operation_parse(uint16_t addr)
+void csip_debug(void)
 {
+	Log(DEBUG, "CS:IP -> \033[;32m0x\033[;92m%04X\033[;32m:0x\033[;92m%04X\033[;97m -> \033[;32m0x\033[;92m%05X.\033[;97m -> INST \033[;32m0x\033[;92m%02X\033[;97m", reg->cs, reg->ip, (reg->cs << 4) + reg->ip, vmram->ram[(reg->cs << 4) + reg->ip]);
+}
+
+void next_instr(uint8_t instr_length)
+{
+	if (reg->ip + instr_length <= 0xFFFF)	reg->ip += instr_length;
+
+	else
+	{
+		reg->cs += 0x1000;
+		reg->ip -= (0xFFFF - instr_length + 1);
+	}
+
+	csip_debug();
+}
+
+int operation_parse(uint32_t addr)
+{
+	uint8_t instr_length = 1;			// Default: single-bype operate code.
+
 	switch (vmram->ram[addr])
 	{
 		case 0x40: reg->ax++; break;	// INC <Reg> single-byte operate code.
@@ -102,20 +132,14 @@ int operation_parse(uint16_t addr)
 			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->di, 2);
 			break;
 
-		case 0x90: ;					// NOP single-byte operate code.
+		case 0x90: break;				// NOP single-byte operate code.
 
 		case 0xF4:						// CPU Pause.
-			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m -> CPU pause.");
+			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m at \033[;32m0x\033[;92m%05X\033[;97m (code: \033[;32m0x\033[;92m%02X\033[;97m) -> CPU pause.", addr, vmram->ram[addr]);
 			return 1;
 	}
 
-	if (reg->ip < 0xFFFF)	reg->ip++;
-	else
-	{
-		reg->cs++;
-		reg->ip = 0x0000;
-	}
-
+	next_instr(instr_length);
 	return 0;
 }
 

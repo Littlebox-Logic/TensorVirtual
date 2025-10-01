@@ -47,16 +47,18 @@ void show_reg(void)
 									reg->ip, reg->flags);
 }
 
-int instr_parse(uint16_t addr)
+int instr_parse(uint32_t addr)
 {
 	return operation_parse(addr); // ? -1 : 1;
 }
 
-void exec(void)
+int exec(void)
 {
 	int exec_status;
-	while (!(exec_status = instr_parse((reg->cs << 4) + reg->ip)));
+	while (!(exec_status = instr_parse((reg->cs << 4) + reg->ip)));		// Integer Promotion Rules: uint16_t -> int32_t. Need: 20-bit -> 1 MiB.
 
 	if (exec_status == 1)	{Log(INFO, "<CPU executing terminated.>");}
 	else					{Log(INFO, "<CPU executing dead - \033[;31mcode: \033[;91m%d\033[;97m>", exec_status);}
+
+	return exec_status;
 }

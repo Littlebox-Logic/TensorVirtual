@@ -3,6 +3,7 @@
 #ifndef BIOS_H
 #define BIOS_H
 
+#include "../vmdisk/vmfloppy.h"
 #include <stdint.h>
 
 #define INSTR_BASE	0xFFFF0
@@ -13,5 +14,6 @@
 
 int bios_init(void);
 void show_mbr_sector(uint8_t *);
+extern vmfloppy image_A;
 
 #endif
