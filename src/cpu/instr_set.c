@@ -83,6 +83,7 @@ void next_instr(uint8_t instr_length)
 int operation_parse(uint32_t addr)
 {
 	uint8_t instr_length = 1;			// Default: single-byte operate code.
+	uint16_t *reg_table[8] = {&(reg->ax), &(reg->cx), &(reg->dx), &(reg->bx), &(reg->sp), &(reg->bp), &(reg->si), &(reg->di)};
 
 	switch (vmram->ram[addr])
 	{
@@ -144,18 +145,21 @@ int operation_parse(uint32_t addr)
 			return 1;
 
 		case 0xFF:
-			switch ((vmram->ram[addr + 1] >> 3) & 0b11111)
+			instr_length = 2;
+			switch (vmram->ram[addr + 1] >> 3)
 			{
 				case 0b11000: break;	// INC  r/m16
 				case 0b11001: break;	// DEC  r/m16
 				case 0b11010: break;	// CALL r/m16
 				case 0b11011: break;	// CALL far m16:16
-				case 0b11100: break;	// JMP  r/m16
+				case 0b11100:			// JMP  r/m16
+					reg->ip = *reg_table[vmram->ram[addr + 1] & 0b00000111];
+					instr_length = 0;
+					break;
 				case 0b11101: break;	// JMP  far m16:16
 				case 0b11110: break;	// PUSH r/m16
 			}
 
-			instr_length = 3;
 			break;
 	}
 

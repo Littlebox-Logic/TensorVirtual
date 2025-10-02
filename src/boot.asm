@@ -11,8 +11,10 @@ jmp 0x7c00
 nop
 db 255
 nop
-times 20 db 0x40
+times 34 db 0x40
 times 20 db 0x43
+
+jmp ax
 
 db 0xf4
 
