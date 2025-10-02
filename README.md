@@ -10,11 +10,19 @@
 可执行文件在 `bin` 目录.
 `boot.img` 是一个引导识别测试文件，由 `src/boot.asm` 编译得到，无其他作用.
 
+编译时需要保证已安装 readline-devel 库（GNU Readline）并确定已安装支持 GNU C 23 标准的 gcc 编译器，如果无法满足这一点，请在保证可使用 GNU C 的情况下自行修改 `Makefile`.
+
 试运行请在项目根目录使用命令：
 
 ```bin/tensor -```
 
-并键入：`boot` `reg` `clear` `exit` `c` `instr`
+并键入：
+    `boot`: 启动 MBR 执行
+    `reg` : 获取寄存器数据
+    `clear`: 清空屏幕
+    `exit`: 退出程序
+    `c`: 从断点处继续运行
+    `instr`: 获取当前指令的地址和内容
 
 版本和帮助信息请使用命令：
 
