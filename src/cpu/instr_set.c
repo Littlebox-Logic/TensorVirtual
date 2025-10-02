@@ -107,6 +107,11 @@ int operation_parse(uint32_t addr)
 
 		case 0x90: break;				// NOP single-byte operate code.
 
+		case 0xB8 ... 0xBF:				// MOV r16, imm16
+			instr_length = 3;
+			*reg_table[vmram->ram[addr] - 0xB8] = vmram->ram[addr + 1] + (vmram->ram[addr + 2] << 8);
+			break;
+
 		case 0xF4:						// CPU Pause.
 			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m at \033[;32m0x\033[;92m%05X\033[;97m (code: \033[;32m0x\033[;92m%02X\033[;97m) -> CPU pause.", addr, vmram->ram[addr]);
 			return 1;
