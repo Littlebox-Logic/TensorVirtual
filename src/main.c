@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/utsname.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include "log.h"
 #include "helpinfo.c"
@@ -17,7 +19,10 @@ bool log_enabled = true;
 int main(int argc, char *argv[], char **envp)
 {
 	struct utsname sysinfo;
-	char input[256];
+	// char input[256];				// When no ``readline''
+
+	char *input;
+	using_history();
 
 	printf("Logic \033[;97mTensor VM\033[0m (Pre-alpha)\n\tBuild-0.1.0.0\n\tCoded by Logic.\n\n");
 
@@ -53,9 +58,11 @@ int main(int argc, char *argv[], char **envp)
 
 	while (1)
 	{
-		printf("[\033[;97;4mTensor VM \033[;97m> \033[0m");
-		scanf("%[^\n]", input);
-		getchar();
+		input = readline("[\033[;97;4mTensor VM \033[;97m> \033[0m");
+		if (*input)	add_history(input);
+
+		// scanf("%[^\n]", input);		// When no ``readline''
+		// getchar();
 
 		if (strcmp(input, ""))	Log(DEBUG, "New instruction GET : %s", input);
 
@@ -71,7 +78,7 @@ int main(int argc, char *argv[], char **envp)
 		if (!strcmp(input, "instr"))	show_instr();
 		if (!strcmp(input, "clear"))	system("clear");
 
-		memset(input, '\0', 256);
+		// memset(input, '\0', 256);	// When no ``readline''
 	}
 
 HALT:
