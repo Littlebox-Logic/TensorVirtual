@@ -113,7 +113,7 @@ int operation_parse(uint32_t addr)
 			break;
 
 		case 0xF4:						// CPU Pause.
-			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m at \033[;32m0x\033[;92m%05X\033[;97m (code: \033[;32m0x\033[;92m%02X\033[;97m) -> CPU pause.", addr, vmram->ram[addr]);
+			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m at \033[;32m0x\033[;92m%05X\033[;97m (\033[;32m0x\033[;92m%04X\033[;97m:\033[;32m0x\033[;92m%04X\033[;97m) -> CPU pause.", addr, reg->cs, reg->ip);
 			return 1;
 
 		case 0xFF:

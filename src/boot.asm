@@ -1,24 +1,22 @@
 org 0x7c00
 
-db 0x40
-db 0x41
-db 0x42
-db 0x40
+inc ax
+inc bx
+inc cx
+inc ax
 
-dw 182
-dw 23
 jmp 0x7c00
 nop
 db 255
 nop
-times 34 db 0x40
-times 20 db 0x43
+times 34 inc ax
+times 20 dec ax
 
 mov sp, 0xABCD
 
 ;jmp ax
 
-db 0xf4
+hlt
 
 times 510 - ($ - $$) db 0
 dw 0xaa55
