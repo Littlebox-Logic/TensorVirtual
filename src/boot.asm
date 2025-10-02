@@ -14,7 +14,7 @@ nop
 times 34 db 0x40
 times 20 db 0x43
 
-jmp ax
+;jmp ax
 
 db 0xf4
 

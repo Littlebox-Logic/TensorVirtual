@@ -47,13 +47,13 @@
  * ______________________________________________________________________________
  * | ModR/M reg/opcode	|	Instruction		|	Description						|
  * ______________________________________________________________________________
- * | 000b	0			|	INC  r/m16		|	
- * | 001b	1			|	DEC  r/m16		|
- * | 010b	2			|	CALL r/m16		|
- * | 011b	3			|	CALL far m16:16	|
- * | 100b	4			|	JMP  r/m16		|
- * | 101b	5			|	JMP  far m16:16	|
- * | 110b	6			|	PUSH r/m16		|
+ * | 000b	0			|	INC  r/m16		|									|
+ * | 001b	1			|	DEC  r/m16		|									|
+ * | 010b	2			|	CALL r/m16		|									|
+ * | 011b	3			|	CALL far m16:16	|									|
+ * | 100b	4			|	JMP  r/m16		|	local jump (change reg IP only)	|
+ * | 101b	5			|	JMP  far m16:16	|									|
+ * | 110b	6			|	PUSH r/m16		|									|
  * ______________________________________________________________________________
  */
 
@@ -85,57 +85,24 @@ int operation_parse(uint32_t addr)
 	uint8_t instr_length = 1;			// Default: single-byte operate code.
 	uint16_t *reg_table[8] = {&(reg->ax), &(reg->cx), &(reg->dx), &(reg->bx), &(reg->sp), &(reg->bp), &(reg->si), &(reg->di)};
 
-	switch (vmram->ram[addr])
+	switch (vmram->ram[addr])			// Attention: ``Case Range'' ONLY for ``GNU C''.
 	{
-		case 0x40: reg->ax++; break;	// INC <Reg> single-byte operate code.
-		case 0x41: reg->cx++; break;
-		case 0x42: reg->dx++; break;
-		case 0x43: reg->bx++; break;
-		case 0x44: reg->sp++; break;
-		case 0x45: reg->bp++; break;
-		case 0x46: reg->si++; break;
-		case 0x47: reg->di++; break;
+		case 0x40 ... 0x47:				// INC <Reg> single-byte operate code.
+			(*reg_table[vmram->ram[addr] - 0x40])++;
+			break;
 
-		case 0x48: reg->ax--; break;	// DEC <Reg> single-byte operate code.
-		case 0x49: reg->cx--; break;
-		case 0x4A: reg->dx--; break;
-		case 0x4B: reg->bx--; break;
-		case 0x4C: reg->sp--; break;
-		case 0x4D: reg->bp--; break;
-		case 0x4E: reg->si--; break;
-		case 0x4F: reg->di--; break;
+		case 0x48 ... 0x4F:				// DEC <Reg> single-byte operate code.
+			(*reg_table[vmram->ram[addr] - 0x40])--;
+			break;
 
-		case 0x50:						// PUSH <Reg> single-byte operate code.
+		case 0x50 ... 0x53:				// PUSH <Reg> single-byte operate code.
+		case 0x55 ... 0x57:
 			reg->sp -= 2;
-			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->ax, 2);
-			break;
-		case 0x51:
-			reg->sp -= 2;
-			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->cx, 2);
-			break;
-		case 0x52:
-			reg->sp -= 2;
-			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->dx, 2);
-			break;
-		case 0x53:
-			reg->sp -= 2;
-			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->bx, 2);
+			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), reg_table[vmram->ram[addr] - 0x50], 2);
 			break;
 		case 0x54:
 			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->sp, 2); // Special operation order.
 			reg->sp -= 2;
-			break;
-		case 0x55:
-			reg->sp -= 2;
-			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->bp, 2);
-			break;
-		case 0x56:
-			reg->sp -= 2;
-			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->si, 2);
-			break;
-		case 0x57:
-			reg->sp -= 2;
-			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->di, 2);
 			break;
 
 		case 0x90: break;				// NOP single-byte operate code.
