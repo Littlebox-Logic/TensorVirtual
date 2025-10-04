@@ -4,6 +4,7 @@
 
 #include "instr_set.h"
 #include "x86_cpu.h"
+#include "interrupt.h"
 #include "../memory/x86_mem.h"
 #include "../log.h"
 
@@ -87,15 +88,15 @@ int operation_parse(uint32_t addr)
 
 	switch (vmram->ram[addr])			// Attention: ``Case Range'' ONLY for ``GNU C''.
 	{
-		case 0x40 ... 0x47:				// INC <Reg> single-byte operate code.
+		case 0x40 ... 0x47:				// INC <Reg> (single-byte operate code).
 			(*reg_table[vmram->ram[addr] - 0x40])++;
 			break;
 
-		case 0x48 ... 0x4F:				// DEC <Reg> single-byte operate code.
+		case 0x48 ... 0x4F:				// DEC <Reg> (single-byte operate code).
 			(*reg_table[vmram->ram[addr] - 0x40])--;
 			break;
 
-		case 0x50 ... 0x53:				// PUSH <Reg> single-byte operate code.
+		case 0x50 ... 0x53:				// PUSH <Reg> (single-byte operate code).
 		case 0x55 ... 0x57:
 			reg->sp -= 2;
 			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), reg_table[vmram->ram[addr] - 0x50], 2);
@@ -105,12 +106,32 @@ int operation_parse(uint32_t addr)
 			reg->sp -= 2;
 			break;
 
-		case 0x90: break;				// NOP single-byte operate code.
+		case 0x90: break;				// NOP (single-byte operate code).
 
 		case 0xB8 ... 0xBF:				// MOV r16, imm16
 			instr_length = 3;
 			*reg_table[vmram->ram[addr] - 0xB8] = vmram->ram[addr + 1] + (vmram->ram[addr + 2] << 8);
 			break;
+
+		case 0xC3: break;				// RET (single-byte operate code).	*
+		case 0xCB: break;				// RETF (single-byte operate code).	*
+
+		case 0xCC:						// INT 3 (single-byte operate code).
+			instr_length = 0;
+			interrupt(3);
+			break;
+		case 0xCD:						// INT n (n != 3)
+			instr_length = 0;
+			interrupt(vmram->ram[addr + 1]);
+			break;
+		case 0xCF:						// IRET (single-byte operate code) -> INT RETURN.
+			instr_length = 0;
+			reg->ip = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]); 	// POP IP
+			reg->sp += 2;
+			reg->cs = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);		// POP CS
+			reg->sp += 2;
+			reg->flags = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);	// POP FLAGS
+			reg->sp += 2;
 
 		case 0xF4:						// CPU Pause.
 			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m at \033[;32m0x\033[;92m%05X\033[;97m (\033[;32m0x\033[;92m%04X\033[;97m:\033[;32m0x\033[;92m%04X\033[;97m) -> CPU pause.", addr, reg->cs, reg->ip);

@@ -7,6 +7,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#undef ERROR
 
 #else
 #include <sys/utsname.h>
@@ -85,6 +86,7 @@ int main(int argc, char *argv[], char **envp)
 	Log(WARN, "No Virtual Mathine is running.");
 	Log(DEBUG, "Starting DEBUG-mode.\n");
 
+	printf("Type \"\033[;97mhelp\033[0m\" to get HELP info.\n");
 	while (1)
 	{
 		#ifdef _WIN32
@@ -109,6 +111,7 @@ int main(int argc, char *argv[], char **envp)
 		if (!strcmp(input, "c"))		vm_continue();
 		if (!strcmp(input, "instr"))	show_instr();
 		if (!strcmp(input, "clear"))	system("clear");
+		if (!strcmp(input, "help"))		show_help();
 
 		#ifdef _WIN32
 		memset(input, '\0', 256);	// When no ``readline''

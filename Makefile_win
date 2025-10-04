@@ -4,8 +4,8 @@
 
 all:				tensor.exe
 
-tensor.exe:				obj/main_win.o	obj/bios_win.o	obj/x86_cpu_win.o	obj/x86_mem_win.o	obj/instr_set_win.o	obj/monitor_win.o	obj/vmfloppy_win.o	obj/virtual_machine_win.o
-	cd obj && x86_64-w64-mingw32-gcc main_win.o bios_win.o x86_cpu_win.o x86_mem_win.o monitor_win.o vmfloppy_win.o virtual_machine_win.o instr_set_win.o -o ../bin/tensor.exe && echo "Build Successfully."
+tensor.exe:				obj/main_win.o	obj/bios_win.o	obj/x86_cpu_win.o	obj/x86_mem_win.o	obj/interrupt_win.o	obj/instr_set_win.o	obj/monitor_win.o	obj/vmfloppy_win.o	obj/virtual_machine_win.o
+	cd obj && x86_64-w64-mingw32-gcc main_win.o bios_win.o x86_cpu_win.o x86_mem_win.o interrupt_win.o monitor_win.o vmfloppy_win.o virtual_machine_win.o instr_set_win.o -o ../bin/tensor.exe && echo "Build Successfully."
 
 obj/main_win.o:			src/main.c	src/log.h	src/helpinfo.c
 	x86_64-w64-mingw32-gcc -c -std=gnu23 -Wall src/main.c				-o obj/main_win.o
@@ -18,6 +18,9 @@ obj/x86_cpu_win.o:		src/cpu/x86_cpu.c	src/cpu/x86_cpu.h
 
 obj/x86_mem_win.o:		src/memory/x86_mem.c	src/memory/x86_mem.h
 	x86_64-w64-mingw32-gcc -c -std=gnu23 -Wall src/memory/x86_mem.c		-o obj/x86_mem_win.o
+
+obj/interrupt_win.o:	src/cpu/interrupt.c		src/cpu/interrupt.h
+	x86_64-w64-mingw32-gcc -c -std=gnu23 -Wall src/cpu/interrupt.c		-o obj/interrupt_win.o
 
 obj/instr_set_win.o:	src/cpu/instr_set.c	src/cpu/instr_set.h
 	x86_64-w64-mingw32-gcc -c -std=gnu23 -Wall src/cpu/instr_set.c		-o obj/instr_set_win.o
