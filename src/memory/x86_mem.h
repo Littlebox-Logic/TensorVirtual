@@ -13,7 +13,16 @@
 
 #define PART_RAM_SIZE	640
 #define PART_VIDEO_SIZE	128
-#define PART_BIOS_SIZE	256
+#define PART_ROM_SIZE	256
+
+/* PC/AT Memory Mapping (PC/XT: 0xE0000 - 0xEFFFF reserved)
+ *
+ * 0x00000 - 0x9FFFF : RAM												640	KiB
+ * 0xA0000 - 0xBFFFF : Video Memory										128	KiB
+ * 0xC0000 - 0xDFFFF : Adapter-ROM (Disk controller, EGA/VGA BIOS...)	128	KiB
+ * 0xE0000 - 0xEFFFF : Ex-ROM-BIOS										 64	KiB
+ * 0xF0000 - 0xFFFFF : ROM-BIOS											 64	KiB
+ */
 
 typedef union
 {
@@ -22,7 +31,16 @@ typedef union
 	{
 		uint8_t ram[PART_RAM_SIZE * KBYTES];
 		uint8_t video[PART_VIDEO_SIZE * KBYTES];
-		uint8_t bios[PART_BIOS_SIZE * KBYTES];
+		union
+		{
+			uint8_t rom[PART_ROM_SIZE * KBYTES];
+			struct
+			{
+				uint8_t adapter[128 * KBYTES];
+				uint8_t ex_bios[64 * KBYTES];
+				uint8_t bios[64 * KBYTES];
+			} part;
+		} rom;
 	} part;
 } memory, *mem_p;
 

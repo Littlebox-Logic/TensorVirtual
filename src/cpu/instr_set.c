@@ -88,6 +88,18 @@ int operation_parse(uint32_t addr)
 
 	switch (vmram->ram[addr])			// Attention: ``Case Range'' ONLY for ``GNU C''.
 	{
+		case 0x0F:						// Reserved INT & Others.
+			instr_length = 0;
+			switch (vmram->ram[addr + 1])
+			{
+				case 0x1A: rom_int_0(); break;
+				case 0x1B: rom_int_1(); return 1;
+				case 0x1C: rom_int_2(); break;
+				case 0x1D: rom_int_3(); break;
+				case 0x1E: rom_int_4(); break;
+			}
+			break;
+
 		case 0x40 ... 0x47:				// INC <Reg> (single-byte operate code).
 			(*reg_table[vmram->ram[addr] - 0x40])++;
 			break;

@@ -13,7 +13,7 @@ times 34 inc ax
 times 20 dec ax
 
 mov dx, 0xABCD
-int 10
+int 0
 
 ;jmp ax
 

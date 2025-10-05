@@ -81,6 +81,7 @@ int main(int argc, char *argv[], char **envp)
 	if (cpu_init()) goto HALT;
 	show_reg();
 	if (mem_init()) goto HALT;
+	rom_int();
 
 	Log(ERROR, "No Bootable device found.");
 	Log(WARN, "No Virtual Mathine is running.");

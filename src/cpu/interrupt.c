@@ -49,7 +49,10 @@ int interrupt(uint8_t ivn)
 
 	reg->sp -= 4;
 	memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->cs, 2);		// PUSH CS
+	Log(DEBUG, "cs. %02X %02X", vmram->ram[(reg->ss << 4) + reg->sp + 1], vmram->ram[(reg->ss << 4) + reg->sp]);
+
 	memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->ip, 2);		// PUSH IP
+	Log(DEBUG, "ip. %02X %02X", vmram->ram[(reg->ss << 4) + reg->sp + 1], vmram->ram[(reg->ss << 4) + reg->sp]);
 
 	reg->flags &= 0b11111110011111111;
 
@@ -57,7 +60,7 @@ int interrupt(uint8_t ivn)
 	reg->cs = (vmram->ram[ivn * 4 + 3] << 8) + vmram->ram[ivn * 4 + 2];
 	Log(INFO, "Starting interrupt: INT 0x%02X", ivn);
 	csip_debug();
-	getchar();
+	// getchar();
 
 	return 0;
 }
@@ -67,20 +70,40 @@ void int_return(void)
 	reg->ip = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]); 		// POP IP
 	reg->sp += 2;
 	reg->cs = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);		// POP CS
+	Log(DEBUG, "%02X %02X", vmram->ram[(reg->ss << 4) + reg->sp + 1], vmram->ram[(reg->ss << 4) + reg->sp]);
+	Log(DEBUG, "CS: %04X", reg->cs);
+
 	reg->sp += 2;
 	reg->flags = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);	// POP FLAGS
 	reg->sp += 2;
 }
 
-void builtin_int_0(void)
+void rom_int_0(void)
 {
 	printf("\033[91mDivide Error!\033[0m\n");
 	int_return();
+	show_reg();
+	getchar();
 }
 
-void builtin_int_1(void)
+void rom_int_1(void)
 {
 	show_reg();
 	show_instr();
 	int_return();
+}
+
+void rom_int_2(void)
+{
+	;
+}
+
+void rom_int_3(void)
+{
+	;
+}
+
+void rom_int_4(void)
+{
+	;
 }
