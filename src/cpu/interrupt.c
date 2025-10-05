@@ -5,6 +5,8 @@
 #include "interrupt.h"
 #include "x86_cpu.h"
 #include "../memory/x86_mem.h"
+#include "instr_set.h"
+#include "../virtual_machine.h"
 #include "../log.h"
 
 /* ______________________________________________________________________
@@ -53,6 +55,32 @@ int interrupt(uint8_t ivn)
 
 	reg->ip = (vmram->ram[ivn * 4 + 1] << 8) + vmram->ram[ivn * 4];
 	reg->cs = (vmram->ram[ivn * 4 + 3] << 8) + vmram->ram[ivn * 4 + 2];
+	Log(INFO, "Starting interrupt: INT 0x%02X", ivn);
+	csip_debug();
+	getchar();
 
 	return 0;
+}
+
+void int_return(void)
+{
+	reg->ip = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]); 		// POP IP
+	reg->sp += 2;
+	reg->cs = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);		// POP CS
+	reg->sp += 2;
+	reg->flags = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);	// POP FLAGS
+	reg->sp += 2;
+}
+
+void builtin_int_0(void)
+{
+	printf("\033[91mDivide Error!\033[0m\n");
+	int_return();
+}
+
+void builtin_int_1(void)
+{
+	show_reg();
+	show_instr();
+	int_return();
 }

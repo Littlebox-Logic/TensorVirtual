@@ -126,12 +126,8 @@ int operation_parse(uint32_t addr)
 			break;
 		case 0xCF:						// IRET (single-byte operate code) -> INT RETURN.
 			instr_length = 0;
-			reg->ip = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]); 	// POP IP
-			reg->sp += 2;
-			reg->cs = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);		// POP CS
-			reg->sp += 2;
-			reg->flags = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);	// POP FLAGS
-			reg->sp += 2;
+			int_return();
+			break;
 
 		case 0xF4:						// CPU Pause.
 			Log(DEBUG, "Detected \033[;32m0x\033[;92mF4\033[;97m at \033[;32m0x\033[;92m%05X\033[;97m (\033[;32m0x\033[;92m%04X\033[;97m:\033[;32m0x\033[;92m%04X\033[;97m) -> CPU pause.", addr, reg->cs, reg->ip);

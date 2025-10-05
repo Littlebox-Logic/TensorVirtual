@@ -12,7 +12,8 @@ nop
 times 34 inc ax
 times 20 dec ax
 
-mov sp, 0xABCD
+mov dx, 0xABCD
+int 10
 
 ;jmp ax
 

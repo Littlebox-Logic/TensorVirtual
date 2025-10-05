@@ -6,5 +6,6 @@
 #include <stdint.h>
 
 int interrupt(uint8_t);
+void int_return(void);
 
 #endif
