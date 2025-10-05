@@ -47,12 +47,11 @@ int interrupt(uint8_t ivn)
 		reg->ip -= (0xFFFF - instr_length + 1);
 	}
 
-	reg->sp -= 4;
+	reg->sp -= 2;
 	memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->cs, 2);		// PUSH CS
-	Log(DEBUG, "cs. %02X %02X", vmram->ram[(reg->ss << 4) + reg->sp + 1], vmram->ram[(reg->ss << 4) + reg->sp]);
 
+	reg->sp -= 2;
 	memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->ip, 2);		// PUSH IP
-	Log(DEBUG, "ip. %02X %02X", vmram->ram[(reg->ss << 4) + reg->sp + 1], vmram->ram[(reg->ss << 4) + reg->sp]);
 
 	reg->flags &= 0b11111110011111111;
 
@@ -70,8 +69,6 @@ void int_return(void)
 	reg->ip = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]); 		// POP IP
 	reg->sp += 2;
 	reg->cs = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);		// POP CS
-	Log(DEBUG, "%02X %02X", vmram->ram[(reg->ss << 4) + reg->sp + 1], vmram->ram[(reg->ss << 4) + reg->sp]);
-	Log(DEBUG, "CS: %04X", reg->cs);
 
 	reg->sp += 2;
 	reg->flags = ((vmram->ram[(reg->ss << 4) + reg->sp + 1]) << 8) + (vmram->ram[(reg->ss << 4) + reg->sp]);	// POP FLAGS
@@ -82,8 +79,6 @@ void rom_int_0(void)
 {
 	printf("\033[91mDivide Error!\033[0m\n");
 	int_return();
-	show_reg();
-	getchar();
 }
 
 void rom_int_1(void)

@@ -78,6 +78,13 @@ void show_reg(void)
 
 int instr_parse(uint32_t addr)
 {
+	if (addr > 0xFFFFF)
+	{
+		Log(ERROR, "Address Overflow.");
+		printf("\033[;91mDeadly Error.\033[0m\n");
+		return -1;
+	}
+
 	return operation_parse(addr); // ? -1 : 1;
 }
 

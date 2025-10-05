@@ -14,6 +14,8 @@ times 20 dec ax
 
 mov dx, 0xABCD
 int 0
+int 0
+int 1
 
 ;jmp ax
 
