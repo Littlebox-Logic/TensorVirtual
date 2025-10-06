@@ -165,6 +165,8 @@ int operation_parse(uint32_t addr)
 	}
 
 	next_instr(instr_length);
+	if (reg->flags & 0x0100)	return 1;
+
 	return 0;
 }
 

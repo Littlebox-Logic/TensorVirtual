@@ -75,30 +75,34 @@ void int_return(void)
 	reg->sp += 2;
 }
 
-void rom_int_0(void)
+void rom_int_0(void)	// Divide Error
 {
-	printf("\033[91mDivide Error!\033[0m\n");
+	printf("\033[;91mINT 00h: Divide Error!\033[0m\n");
 	int_return();
 }
 
-void rom_int_1(void)
+void rom_int_1(void)	// Single-step Debug
 {
 	show_reg();
 	show_instr();
 	int_return();
 }
 
-void rom_int_2(void)
+void rom_int_2(void)	// NMI		*** Developing.
 {
-	;
+	printf("\033[;91mINT 02h: NMI Error!\033[0m\n");
+	int_return();
 }
 
-void rom_int_3(void)
+void rom_int_3(void)	// Debug
 {
-	;
+	show_reg();
+	show_instr();
+	int_return();
 }
 
 void rom_int_4(void)
 {
-	;
+	printf("\033[;91mINT 04h: Arithmetic Overflow!\033[0m\n");
+	int_return();
 }

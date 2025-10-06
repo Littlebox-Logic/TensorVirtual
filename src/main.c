@@ -111,7 +111,7 @@ int main(int argc, char *argv[], char **envp)
 		if (!strcmp(input, "boot"))		vm_boot();
 		if (!strcmp(input, "c"))		vm_continue();
 		if (!strcmp(input, "instr"))	show_instr();
-		if (!strcmp(input, "clear"))	system("clear");
+		if (!strcmp(input, "clear"))	printf("\033[2J\033[H"); // like system("clear");
 		if (!strcmp(input, "help"))		show_help();
 
 		#ifdef _WIN32
