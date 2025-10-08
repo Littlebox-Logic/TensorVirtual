@@ -5,7 +5,7 @@
 all:				tensor.exe
 
 tensor.exe:				obj/main_win.o	obj/bios_win.o	obj/x86_cpu_win.o	obj/x86_mem_win.o	obj/interrupt_win.o	obj/instr_set_win.o	obj/monitor_win.o	obj/vmfloppy_win.o	obj/virtual_machine_win.o
-	cd obj && x86_64-w64-mingw32-gcc main_win.o bios_win.o x86_cpu_win.o x86_mem_win.o interrupt_win.o monitor_win.o vmfloppy_win.o virtual_machine_win.o instr_set_win.o -lSDL3 -o ../bin/tensor.exe && echo "Build Successfully."
+	cd obj && x86_64-w64-mingw32-gcc main_win.o bios_win.o x86_cpu_win.o x86_mem_win.o interrupt_win.o monitor_win.o vmfloppy_win.o virtual_machine_win.o instr_set_win.o -lSDL3.dll -static -o ../bin/tensor.exe && echo "Build Successfully."
 
 obj/main_win.o:			src/main.c	src/log.h	src/helpinfo.c
 	x86_64-w64-mingw32-gcc -c -std=gnu23 -Wall src/main.c				-o obj/main_win.o
