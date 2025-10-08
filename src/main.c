@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <SDL3/SDL.h>
+#include <pthread.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -13,6 +15,7 @@
 #include <sys/utsname.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+// #include <unistd.h>
 
 #endif
 
@@ -21,6 +24,7 @@
 #include "cpu/x86_cpu.h"
 #include "virtual_machine.h"
 #include "memory/x86_mem.h"
+#include "monitor/monitor.h"
 
 bool log_enabled = true;
 
@@ -34,6 +38,8 @@ int main(int argc, char *argv[], char **envp)
 	char *input;
 	using_history();
 	#endif
+
+	pthread_t monitor_sdl_thread;
 
 	printf("Logic \033[;97mTensor VM\033[0m (Pre-alpha)\n\tBuild-0.1.0.0\n\tCoded by Logic.\n\n");
 
@@ -78,18 +84,28 @@ int main(int argc, char *argv[], char **envp)
 
 	Log(INFO, "Booting <8086 Real-Mode>.");
 
-	if (cpu_init()) goto HALT;
+	if (cpu_init())		goto HALT;
 	show_reg();
-	if (mem_init()) goto HALT;
+	if (mem_init())		goto HALT;
 	rom_int();
+	if (monitor_init())	goto HALT;
+
+	pthread_create(&monitor_sdl_thread, NULL, monitor_thread, NULL);
+	Log(INFO, "Monitor status: \033[;92mPower-On\033[;97m.");
 
 	Log(ERROR, "No Bootable device found.");
 	Log(WARN, "No Virtual Mathine is running.");
 	Log(DEBUG, "Starting DEBUG-mode.\n");
 
 	printf("Type \"\033[;97mhelp\033[0m\" to get HELP info.\n");
-	while (1)
+	while (true)
 	{
+		// if (sdl_event.type == SDL_KEYDOWN || sdl_event.type == SDL_KEYUP)
+		/*if (sdl_event.type == SDL_KEYDOWN && sdl_event.key.keysym.sym == SDLK_ESCAPE)
+		{
+			Log(INFO, "<Esc>");
+			break;
+		}*/
 		#ifdef _WIN32
 		printf("[\033[;97;4mTensor VM \033[;97m> \033[0m");
 		scanf("%[^\n]", input);		// When no ``readline''
@@ -119,9 +135,13 @@ int main(int argc, char *argv[], char **envp)
 		#endif
 	}
 
+	monitor_on = false;
+	pthread_join(monitor_sdl_thread, NULL);
+
 HALT:
 	free(reg);
 	free(vmram);
+	monitor_destroy();
 	Log(INFO, "Shutdown.");
 
 	return 0;

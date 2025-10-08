@@ -3,4 +3,8 @@
 #ifndef DISPLAY_CORE_H
 #define DISPLAY_CORE_H
 
+#include <stdint.h>
+
+void clear_screen(void);
+
 #endif
