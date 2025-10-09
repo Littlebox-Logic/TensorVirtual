@@ -17,13 +17,11 @@ bool monitor_on = true;
 
 int monitor_init(void)
 {
-	/* #ifdef __linux__
-	if (!SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SDL_VIDEODRIVER", "kmsdrm", true))
+	if (!SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SDL_RENDER_DRIVER", "software", true))
 	{
 		Log(ERROR, "Failed to set SDL environment variable: %s", SDL_GetError());
 		return -1;
 	}
-	#endif */
 
 	uint8_t drivers_num = SDL_GetNumVideoDrivers();
 	Log(INFO, "Detected video driver number : %u", drivers_num);
@@ -45,8 +43,7 @@ int monitor_init(void)
 	}
 
 	Log(INFO, "Current display mode: %dx%d @ %.2lfHz.", display_mode->w, display_mode->h, display_mode->refresh_rate);
-
-	if (!(window = SDL_CreateWindow("Tensor VM <Arch: 8086>", display_mode->w / 2, display_mode->h / 2, SDL_WINDOW_NOT_FOCUSABLE | SDL_WINDOW_ALWAYS_ON_TOP)))
+	if (!(window = SDL_CreateWindow("Tensor VM <Arch: 8086>", display_mode->w / 2, display_mode->h / 2, SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_NOT_FOCUSABLE | SDL_WINDOW_ALWAYS_ON_TOP)))
 	{
 		Log(ERROR, "Failed to create window: %s", SDL_GetError());
 		SDL_Quit();
@@ -54,16 +51,13 @@ int monitor_init(void)
 	}
 	SDL_SetWindowPosition(window, display_mode->w / 2, 0);
 
-	/* SDL_PropertiesID sdl_props = SDL_CreateProperties();
-	SDL_SetPointerProperty(sdl_props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, window);
-	SDL_SetBooleanProperty(sdl_props, SDL_PROP_RENDERER_CREATE_ACCELERATED_BOOLEAN, SDL_TRUE);
-	SDL_SetBooleanProperty(sdl_props, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_BOOLEAN, SDL_TRUE); */
 	if (!(renderer = SDL_CreateRenderer(window, NULL)))
 	{
 		Log(ERROR, "Failed to create renderer: %s", SDL_GetError());
 		SDL_DestroyWindow(window);
 		SDL_Quit();
 	}
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	#ifdef __linux__
 	SDL_Rect viewport;
@@ -87,7 +81,6 @@ void *monitor_thread(void *)
 	{
 		while (SDL_PollEvent(&sdl_event))
 		{
-			SDL_Delay(50);
 			switch (sdl_event.type)
 			{
 				case SDL_EVENT_QUIT:	monitor_on = false; break;
