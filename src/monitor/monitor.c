@@ -26,7 +26,7 @@ int monitor_init(void)
 	#endif */
 
 	uint8_t drivers_num = SDL_GetNumVideoDrivers();
-	Log(INFO, "Detected video driver nummber : %u", drivers_num);
+	Log(INFO, "Detected video driver number : %u", drivers_num);
 	for (uint8_t index = 0; index < drivers_num; index++)	Log(INFO, "Video Driver %d: %s", index, SDL_GetVideoDriver(index));
 
 	if (!SDL_Init(SDL_INIT_VIDEO))
@@ -37,15 +37,6 @@ int monitor_init(void)
 
 	Log(INFO, "Current Video Driver: %s.", SDL_GetCurrentVideoDriver());
 
-	if (SDL_GetDisplayBounds(0, &display_bounds))
-	{
-		// (Width, Height):	(display_bounds.w, display_bounds.h)
-		// Init Pos:		(display_bounds.x, display_bounds.y)
-
-		Log(ERROR, "Failed to get display bounds: %s", SDL_GetError());
-		SDL_Quit();
-	}
-
 	int count = 0;
 	if ((display_mode = (SDL_DisplayMode *)SDL_GetCurrentDisplayMode(SDL_GetDisplays(&count)[0])) == NULL)	// '=', not "==".
 	{
@@ -55,13 +46,14 @@ int monitor_init(void)
 
 	Log(INFO, "Current display mode: %dx%d @ %.2lfHz.", display_mode->w, display_mode->h, display_mode->refresh_rate);
 
-	if (!(window = SDL_CreateWindow("Tensor VM <Arch: 8086>", display_bounds.w / 2, display_bounds.h / 2, SDL_WINDOW_NOT_FOCUSABLE)))
+//	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	SDL_SetHint(SDL_HINT_VIDEO_KMSDRM_USE_OVERLAY, "1");
+	if (!(window = SDL_CreateWindow("Tensor VM <Arch: 8086>", display_mode->w / 2, display_mode->h / 2, SDL_WINDOW_NOT_FOCUSABLE | SDL_WINDOW_ALWAYS_ON_TOP)))
 	{
 		Log(ERROR, "Failed to create window: %s", SDL_GetError());
 		SDL_Quit();
 		return -1;
 	}
-	SDL_SetWindowPosition(window, display_bounds.x + display_bounds.w / 2, display_bounds.y);
+	SDL_SetWindowPosition(window, display_mode->w / 2, 0);
 
 	/* SDL_PropertiesID sdl_props = SDL_CreateProperties();
 	SDL_SetPointerProperty(sdl_props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, window);
@@ -74,8 +66,12 @@ int monitor_init(void)
 		SDL_Quit();
 	}
 
-	Log(INFO, "Initialized monitor <Engine: SDL3> Pos: (%d, %d), Mode: %dx%d.", display_bounds.x + display_bounds.w / 2, display_bounds.y, display_bounds.w / 2, display_bounds.h / 2);
-	clear_screen();
+	Log(INFO, "Initialized monitor <Engine: SDL3> Pos: (%d, %d), Mode: %dx%d.", display_mode->w / 2, 0, display_mode->w / 2, display_mode->h / 2);
+	int x, y, w, h;
+	SDL_GetWindowPosition(window, &x, &y);
+	SDL_GetWindowSize(window, &w, &h);
+	printf("x: %d. y: %d. w: %d. h: %d. <%s>\n", x, y, w, h, SDL_GetError());
+	// clear_screen();
 
 	return 0;
 }

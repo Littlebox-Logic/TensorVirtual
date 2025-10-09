@@ -11,7 +11,7 @@ void clear_screen(void)
 	const uint8_t border_thickness = 4;
 	SDL_FRect border_rects[4];
 
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);			// Background.
+	SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);			// Background.
 	SDL_RenderClear(renderer);
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);	// Border.
@@ -21,6 +21,7 @@ void clear_screen(void)
 	border_rects[3] = (SDL_FRect){display_bounds.w / 2 - border_thickness, 0, border_thickness, display_bounds.h / 2};
 
 	for (uint8_t index = 0; index < 4; index++)	SDL_RenderFillRect(renderer, &border_rects[index]);
+	SDL_RenderPresent(renderer);
 
 	Log(INFO, "Cleared workspace screen.");
 }
