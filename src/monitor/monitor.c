@@ -17,24 +17,25 @@ bool monitor_on = true;
 
 int monitor_init(void)
 {
-	#ifdef __linux__
+	/* #ifdef __linux__
 	if (!SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SDL_VIDEODRIVER", "kmsdrm", true))
 	{
 		Log(ERROR, "Failed to set SDL environment variable: %s", SDL_GetError());
 		return -1;
 	}
-	#endif
+	#endif */
 
 	uint8_t drivers_num = SDL_GetNumVideoDrivers();
 	Log(INFO, "Detected video driver nummber : %u", drivers_num);
-	for (uint8_t index = 0; index < drivers_num; index++)
-		Log(INFO, "Video Driver %d: %s", index, SDL_GetVideoDriver(index));
+	for (uint8_t index = 0; index < drivers_num; index++)	Log(INFO, "Video Driver %d: %s", index, SDL_GetVideoDriver(index));
 
 	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
 		Log(ERROR, "Failed to initialize SDL3 core: %s", SDL_GetError());
 		return -1;
 	}
+
+	Log(INFO, "Current Video Driver: %s.", SDL_GetCurrentVideoDriver());
 
 	if (SDL_GetDisplayBounds(0, &display_bounds))
 	{
@@ -65,7 +66,7 @@ int monitor_init(void)
 	/* SDL_PropertiesID sdl_props = SDL_CreateProperties();
 	SDL_SetPointerProperty(sdl_props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, window);
 	SDL_SetBooleanProperty(sdl_props, SDL_PROP_RENDERER_CREATE_ACCELERATED_BOOLEAN, SDL_TRUE);
-	SDL_SetBooleanProperty(sdl_props, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_BOOLEAN, SDL_TRUE);*/
+	SDL_SetBooleanProperty(sdl_props, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_BOOLEAN, SDL_TRUE); */
 	if (!(renderer = SDL_CreateRenderer(window, NULL)))
 	{
 		Log(ERROR, "Failed to create renderer: %s", SDL_GetError());
