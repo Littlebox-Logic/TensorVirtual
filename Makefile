@@ -5,13 +5,13 @@
 all:				tensor	tensor.exe
 
 tensor:				obj/main.o	obj/bios.o	obj/x86_cpu.o	obj/x86_mem.o	obj/interrupt.o	obj/instr_set.o	obj/monitor.o	obj/vmfloppy.o	obj/virtual_machine.o
-	cd obj && gcc main.o bios.o x86_cpu.o x86_mem.o interrupt.o monitor.o vmfloppy.o virtual_machine.o instr_set.o -lreadline -lSDL3 -o ../bin/tensor && echo "Build Successfully."
+	cd obj && gcc main.o bios.o x86_cpu.o x86_mem.o interrupt.o monitor.o vmfloppy.o virtual_machine.o instr_set.o -lm -lreadline ../lib/libSDL3.a -o ../bin/tensor && echo "Build Successfully."
 
 tensor.exe:			Makefile_win
 	make -f Makefile_win
 
 obj/main.o:			src/main.c	src/log.h	src/helpinfo.c
-	gcc -c -std=gnu23 -Wall src/main.c				-o obj/main.o	-lreadline
+	gcc -c -std=gnu23 -Wall src/main.c				-o obj/main.o
 
 obj/bios.o:			src/bios/bios.c	src/bios/bios.h
 	gcc -c -std=gnu23 -Wall src/bios/bios.c			-o obj/bios.o

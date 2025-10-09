@@ -25,6 +25,11 @@ int monitor_init(void)
 	}
 	#endif
 
+	uint8_t drivers_num = SDL_GetNumVideoDrivers();
+	Log(INFO, "Detected video driver nummber : %u", drivers_num);
+	for (uint8_t index = 0; index < drivers_num; index++)
+		Log(INFO, "Video Driver %d: %s", index, SDL_GetVideoDriver(index));
+
 	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
 		Log(ERROR, "Failed to initialize SDL3 core: %s", SDL_GetError());
