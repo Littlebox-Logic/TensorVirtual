@@ -5,16 +5,17 @@
 #include "../log.h"
 
 #include <SDL3/SDL.h>
+#include <stdint.h>
 
 void clear_screen(void)
 {
 	const uint8_t border_thickness = 4;
 	SDL_FRect border_rects[4];
 
-	SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);			// Background.
+	SDL_SetRenderDrawColor(renderer, 255, 255, 0, 128);			// Background.
 	SDL_RenderClear(renderer);
 
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);	// Border.
+	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 128);	// Border.
 	border_rects[0] = (SDL_FRect){0, 0, display_bounds.w / 2, border_thickness};
 	border_rects[1] = (SDL_FRect){0, display_bounds.h / 2 - border_thickness, display_bounds.w, border_thickness};
 	border_rects[2] = (SDL_FRect){0, 0, border_thickness, display_bounds.h / 2};

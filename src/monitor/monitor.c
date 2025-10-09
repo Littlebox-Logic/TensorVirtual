@@ -1,7 +1,7 @@
 // Tensor VM - monitor/monitor.c
 
 #include "monitor.h"
-#include "display_core.c"
+#include "display_core.h"
 #include "../log.h"
 
 #include <SDL3/SDL.h>
@@ -46,7 +46,6 @@ int monitor_init(void)
 
 	Log(INFO, "Current display mode: %dx%d @ %.2lfHz.", display_mode->w, display_mode->h, display_mode->refresh_rate);
 
-//	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	SDL_SetHint(SDL_HINT_VIDEO_KMSDRM_USE_OVERLAY, "1");
 	if (!(window = SDL_CreateWindow("Tensor VM <Arch: 8086>", display_mode->w / 2, display_mode->h / 2, SDL_WINDOW_NOT_FOCUSABLE | SDL_WINDOW_ALWAYS_ON_TOP)))
 	{
 		Log(ERROR, "Failed to create window: %s", SDL_GetError());
@@ -66,12 +65,18 @@ int monitor_init(void)
 		SDL_Quit();
 	}
 
+	#ifdef __linux__
+	SDL_Rect viewport;
+	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))
+	{
+		viewport = (SDL_Rect){(float)(display_mode->w / 2), 0.0, (float)(display_mode->w / 2), (float)(display_mode->h / 2)};
+		SDL_SetRenderViewport(renderer, &viewport);
+		Log(INFO, "Set viewport for KMSDRM mode.");
+	}
+	#endif
+
 	Log(INFO, "Initialized monitor <Engine: SDL3> Pos: (%d, %d), Mode: %dx%d.", display_mode->w / 2, 0, display_mode->w / 2, display_mode->h / 2);
-	int x, y, w, h;
-	SDL_GetWindowPosition(window, &x, &y);
-	SDL_GetWindowSize(window, &w, &h);
-	printf("x: %d. y: %d. w: %d. h: %d. <%s>\n", x, y, w, h, SDL_GetError());
-	// clear_screen();
+	clear_screen();
 
 	return 0;
 }
