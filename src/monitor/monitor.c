@@ -63,9 +63,10 @@ int monitor_init(void)
 	SDL_Rect viewport;
 	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))
 	{
-		viewport = (SDL_Rect){(float)(display_mode->w / 2), 0.0, (float)(display_mode->w / 2), (float)(display_mode->h / 2)};
-		SDL_SetRenderViewport(renderer, &viewport);
+		//viewport = (SDL_Rect){(float)(display_mode->w / 2), 0.0, (float)(display_mode->w / 2), (float)(display_mode->h / 2)};
+		//SDL_SetRenderViewport(renderer, &viewport);
 		Log(INFO, "Set viewport for KMSDRM mode.");
+		overlay_init();
 	}
 	#endif
 
@@ -97,6 +98,9 @@ void *monitor_thread(void *)
 void monitor_destroy(void)
 {
 	Log(INFO, "Disconnecting monitor.");
+	#ifdef __linux__
+	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	overlay_cleanup();
+	#endif
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

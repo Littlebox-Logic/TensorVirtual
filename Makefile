@@ -5,7 +5,7 @@
 all:				tensor	tensor.exe
 
 tensor:				obj/main.o	obj/bios.o	obj/x86_cpu.o	obj/x86_mem.o	obj/interrupt.o	obj/instr_set.o	obj/monitor.o	obj/display_core.o	obj/vmfloppy.o	obj/virtual_machine.o
-	cd obj && gcc main.o bios.o x86_cpu.o x86_mem.o interrupt.o monitor.o display_core.o vmfloppy.o virtual_machine.o instr_set.o -lm -lreadline ../lib/libSDL3.a -o ../bin/tensor && printf "\033[;92mLinux Build Successfully.\033[0m\n"
+	cd obj && gcc main.o bios.o x86_cpu.o x86_mem.o interrupt.o monitor.o display_core.o vmfloppy.o virtual_machine.o instr_set.o -lm -lreadline -ldrm ../lib/libSDL3.a -o ../bin/tensor && printf "\033[;92mLinux Build Successfully.\033[0m\n"
 
 obj/main.o:			src/main.c	src/log.h	src/helpinfo.c
 	gcc -c -std=gnu23 -Wall src/main.c					-o obj/main.o
