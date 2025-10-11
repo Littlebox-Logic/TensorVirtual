@@ -19,7 +19,7 @@
 #ifdef __linux__
 void *fb_buffer;
 int drm_fd;
-drmModePlane *drm_mode_plane;
+drmModePlane *drm_mode_plane = NULL;
 drmModeRes *drm_mode_res;
 uint32_t fb_id;
 struct drm_mode_create_dumb creq; 
@@ -32,8 +32,8 @@ void clear_screen(void)
 	SDL_FRect border_rects[4];
 	SDL_FRect bg_rect = {0, 0, display_mode->w, display_mode->h};
 
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);			// Background.
-	SDL_RenderClear(renderer);
+	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);			// Background.
+	//SDL_RenderClear(renderer);
 	SDL_RenderFillRect(renderer, &bg_rect); 
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);	// Border.
@@ -60,7 +60,17 @@ int overlay_init(void)
 {
 	drm_fd = open("/dev/dri/card1", O_RDWR | O_CLOEXEC);
 	sdl_rect = (SDL_Rect){0, 0, display_mode->w / 2, display_mode->h / 2};
-	drm_mode_plane = drmModeGetPlane(drm_fd, drmModeGetPlaneResources(drm_fd)->planes[1]);
+	for (uint8_t index = 0; index < drmModeGetPlaneResources(drm_fd)->count_planes; index++)
+	{
+		drmModePlane *temp_plane = drmModeGetPlane(drm_fd, drmModeGetPlaneResources(drm_fd)->planes[index]);
+
+		if (true) //temp_plane->type == DRM_PLANE_TYPE_OVERLAY)// && (temp_plane->possible_crtcs & (1 << crtc_index)))
+		{
+			drm_mode_plane = temp_plane;
+			Log(INFO, "Selected DRM mode plane: %u (type: overlay)", index);
+		}
+		Log(ERROR, "No usable DRM mode plane (expected type: overlay).");
+	}
 	drm_mode_res = drmModeGetResources(drm_fd);
 
 	creq.width = display_mode->w / 2;

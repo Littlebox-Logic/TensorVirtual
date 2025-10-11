@@ -5,6 +5,7 @@
 #include "../log.h"
 
 #include <SDL3/SDL.h>
+// #include <SDL_ttf.h>
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -27,7 +28,7 @@ int monitor_init(void)
 	Log(INFO, "Detected video driver number : %u", drivers_num);
 	for (uint8_t index = 0; index < drivers_num; index++)	Log(INFO, "Video Driver %d: %s", index, SDL_GetVideoDriver(index));
 
-	if (!SDL_Init(SDL_INIT_VIDEO))
+	if (!SDL_Init(SDL_INIT_VIDEO)) // || TTF_Init() == -1)
 	{
 		Log(ERROR, "Failed to initialize SDL3 core: %s", SDL_GetError());
 		return -1;
@@ -63,8 +64,8 @@ int monitor_init(void)
 	SDL_Rect viewport;
 	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))
 	{
-		//viewport = (SDL_Rect){(float)(display_mode->w / 2), 0.0, (float)(display_mode->w / 2), (float)(display_mode->h / 2)};
-		//SDL_SetRenderViewport(renderer, &viewport);
+		viewport = (SDL_Rect){(float)(display_mode->w / 2), 0.0, (float)(display_mode->w / 2), (float)(display_mode->h / 2)};
+		SDL_SetRenderViewport(renderer, &viewport);
 		Log(INFO, "Set viewport for KMSDRM mode.");
 		overlay_init();
 	}
