@@ -5,14 +5,14 @@
 #include "../log.h"
 
 #include <SDL3/SDL.h>
-// #include <SDL_ttf.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-SDL_Rect display_bounds; // = NULL;
-SDL_Event sdl_event; // = NULL;
+SDL_Rect display_bounds;
+SDL_Event sdl_event;
 SDL_DisplayMode *display_mode = NULL;
-// SDL_Environment *env = NULL;
+TTF_Font *default_font = NULL;
 
 bool monitor_on = true;
 
@@ -28,9 +28,17 @@ int monitor_init(void)
 	Log(INFO, "Detected video driver number : %u", drivers_num);
 	for (uint8_t index = 0; index < drivers_num; index++)	Log(INFO, "Video Driver %d: %s", index, SDL_GetVideoDriver(index));
 
-	if (!SDL_Init(SDL_INIT_VIDEO)) // || TTF_Init() == -1)
+	if (!SDL_Init(SDL_INIT_VIDEO) || !TTF_Init())
 	{
 		Log(ERROR, "Failed to initialize SDL3 core: %s", SDL_GetError());
+		return -1;
+	}
+
+	if(!(default_font = TTF_OpenFont("lib/DejaVuSansMono.ttf", 18.0f)))
+	{
+		Log(ERROR, "Failed to load default True-type font: DejaVu Sans Mono: %s", SDL_GetError());	// TTF_GetError();
+		TTF_Quit();
+		SDL_Quit();
 		return -1;
 	}
 
@@ -72,7 +80,6 @@ int monitor_init(void)
 	#endif
 
 	Log(INFO, "Initialized monitor <Engine: SDL3> Pos: (%d, %d), Mode: %dx%d.", display_mode->w / 2, 0, display_mode->w / 2, display_mode->h / 2);
-	clear_screen();
 
 	return 0;
 }
@@ -102,7 +109,9 @@ void monitor_destroy(void)
 	#ifdef __linux__
 	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	overlay_cleanup();
 	#endif
+	TTF_CloseFont(default_font);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+	TTF_Quit();
 	SDL_Quit();
 }

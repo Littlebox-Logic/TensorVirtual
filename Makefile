@@ -4,8 +4,8 @@
 
 all:				tensor	tensor.exe
 
-tensor:				obj/main.o	obj/bios.o	obj/x86_cpu.o	obj/x86_mem.o	obj/interrupt.o	obj/instr_set.o	obj/monitor.o	obj/display_core.o	obj/vmfloppy.o	obj/virtual_machine.o
-	cd obj && gcc main.o bios.o x86_cpu.o x86_mem.o interrupt.o monitor.o display_core.o vmfloppy.o virtual_machine.o instr_set.o -lm -lreadline -ldrm ../lib/libSDL3.a -o ../bin/tensor && printf "\033[;92mLinux Build Successfully.\033[0m\n"
+tensor:				obj/main.o	obj/bios.o	obj/x86_cpu.o	obj/x86_mem.o	obj/interrupt.o	obj/instr_set.o	obj/monitor.o	obj/display_core.o	obj/vmfloppy.o	obj/virtual_machine.o	lib/libSDL3.a	lib/libSDL3_ttf.a
+	cd obj && gcc main.o bios.o x86_cpu.o x86_mem.o interrupt.o monitor.o display_core.o vmfloppy.o virtual_machine.o instr_set.o -lm -lreadline -ldrm -lfreetype -lharfbuzz -lplutosvg ../lib/libSDL3.a ../lib/libSDL3_ttf.a -o ../bin/tensor && printf "\033[;92mLinux Build Successfully.\033[0m\n"
 
 obj/main.o:			src/main.c	src/log.h	src/helpinfo.c
 	gcc -c -std=gnu23 -Wall src/main.c					-o obj/main.o
@@ -38,7 +38,7 @@ obj/virtual_machine.o:	src/virtual_machine.c	src/virtual_machine.h
 	gcc -c -std=gnu23 -Wall src/virtual_machine.c		-o obj/virtual_machine.o
 
 tensor.exe:				obj/main_win.o	obj/bios_win.o	obj/x86_cpu_win.o	obj/x86_mem_win.o	obj/interrupt_win.o	obj/instr_set_win.o	obj/monitor_win.o	obj/display_core_win.o	obj/vmfloppy_win.o	obj/virtual_machine_win.o
-	cd obj && x86_64-w64-mingw32-gcc main_win.o bios_win.o x86_cpu_win.o x86_mem_win.o interrupt_win.o monitor_win.o display_core_win.o vmfloppy_win.o virtual_machine_win.o instr_set_win.o -lSDL3.dll -static -o ../bin/tensor.exe && printf "\033[;92mWindows Build Successfully.\033[0m\n"
+	cd obj && x86_64-w64-mingw32-gcc main_win.o bios_win.o x86_cpu_win.o x86_mem_win.o interrupt_win.o monitor_win.o display_core_win.o vmfloppy_win.o virtual_machine_win.o instr_set_win.o -lSDL3.dll -lSDL3_ttf.dll -static -o ../bin/tensor.exe && printf "\033[;92mWindows Build Successfully.\033[0m\n"
 
 obj/main_win.o:			src/main.c	src/log.h	src/helpinfo.c
 	x86_64-w64-mingw32-gcc -c -std=gnu23 -Wall src/main.c					-o obj/main_win.o

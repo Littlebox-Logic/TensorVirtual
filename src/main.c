@@ -25,6 +25,7 @@
 #include "virtual_machine.h"
 #include "memory/x86_mem.h"
 #include "monitor/monitor.h"
+#include "monitor/display_core.h"
 
 bool log_enabled = true;
 
@@ -90,7 +91,7 @@ int main(int argc, char *argv[], char **envp)
 	rom_int();
 	if (monitor_init())	goto HALT;
 
-	pthread_create(&monitor_sdl_thread, NULL, monitor_thread, NULL);
+	pthread_create(&monitor_sdl_thread, NULL, monitor_thread, NULL); 
 	Log(INFO, "Monitor status: \033[;92mPower-On\033[;97m.");
 
 	Log(ERROR, "No Bootable device found.");
@@ -124,7 +125,7 @@ int main(int argc, char *argv[], char **envp)
 		}
 
 		if (!strcmp(input, "reg"))		show_reg();
-		if (!strcmp(input, "boot"))		vm_boot();
+		if (!strcmp(input, "boot"))		{clear_screen(); hello(); vm_boot();}
 		if (!strcmp(input, "c"))		vm_continue();
 		if (!strcmp(input, "instr"))	show_instr();
 		if (!strcmp(input, "clear"))	printf("\033[2J\033[H"); // like system("clear");

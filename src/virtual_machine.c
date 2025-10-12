@@ -21,7 +21,6 @@ int vm_boot(void)
 	Log(INFO, "Booting virtual machine.");
 	if (bios_init())	return EXIT_FAILURE;
 
-	
 	return 0;
 }
 

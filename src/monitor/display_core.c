@@ -5,6 +5,7 @@
 #include "../log.h"
 
 #include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <stdint.h>
 
 #ifdef __linux__
@@ -32,8 +33,8 @@ void clear_screen(void)
 	SDL_FRect border_rects[4];
 	SDL_FRect bg_rect = {0, 0, display_mode->w, display_mode->h};
 
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);			// Background.
-	//SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);			// Background.
+	SDL_RenderClear(renderer);
 	SDL_RenderFillRect(renderer, &bg_rect); 
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);	// Border.
@@ -44,7 +45,7 @@ void clear_screen(void)
 
 	for (uint8_t index = 0; index < 4; index++)	SDL_RenderFillRect(renderer, &border_rects[index]);
 	#ifdef __linux__
-	if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	overlay_present();
+	if (!!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	overlay_present();
 	else
 	#endif
 	{
@@ -52,7 +53,19 @@ void clear_screen(void)
 		SDL_Delay(16);
 		SDL_RenderPresent(renderer);
 	}
-	// Log(INFO, "Cleared workspace screen.");
+	Log(INFO, "Cleared workspace screen.");
+}
+
+void hello(void)
+{
+	SDL_Color color =  (SDL_Color){255, 255, 255};
+	SDL_Surface *hello_surface = TTF_RenderText_Solid(default_font, "Hello world. This is Tensor Virtual VM.", 39, color);
+	SDL_Texture *hello_texture = SDL_CreateTextureFromSurface(renderer, hello_surface);
+	SDL_FRect text_rect = {.x = 10.0f, .y = 10.0f, .w = (float)hello_surface->w, .h = (float)hello_surface->h};
+	SDL_RenderTexture(renderer, hello_texture, NULL, &text_rect);
+	SDL_RenderPresent(renderer);
+	SDL_Delay(16);
+	SDL_RenderPresent(renderer);
 }
 
 #ifdef __linux__
@@ -68,6 +81,7 @@ int overlay_init(void)
 		{
 			drm_mode_plane = temp_plane;
 			Log(INFO, "Selected DRM mode plane: %u (type: overlay)", index);
+			break;
 		}
 		Log(ERROR, "No usable DRM mode plane (expected type: overlay).");
 	}

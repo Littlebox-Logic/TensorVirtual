@@ -4,6 +4,7 @@
 #define DISPLAY_CORE_H
 
 void clear_screen(void);
+void hello(void);
 
 #ifdef __linux__
 int overlay_init(void);
