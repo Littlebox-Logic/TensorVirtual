@@ -4,9 +4,8 @@
 #include "monitor.h"
 #include "../log.h"
 
-#include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
-#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 
 #ifdef __linux__
 #include <sys/mman.h>
@@ -26,6 +25,11 @@ uint32_t fb_id;
 struct drm_mode_create_dumb creq; 
 SDL_Rect sdl_rect;
 #endif
+
+uint8_t		line_index = 0;
+uint16_t	line_offset = 0;
+text_node	text_head = NULL;
+text_node	text_tail = NULL;
 
 void clear_screen(void)
 {
@@ -50,21 +54,89 @@ void clear_screen(void)
 	#endif
 	{
 		SDL_RenderPresent(renderer);
-		SDL_Delay(16);
-		SDL_RenderPresent(renderer);
 	}
 	Log(INFO, "Cleared workspace screen.");
 }
 
 void hello(void)
 {
-	SDL_Color color =  (SDL_Color){255, 255, 255};
-	SDL_Surface *hello_surface = TTF_RenderText_Solid(default_font, "Hello world. This is Tensor Virtual VM.", 39, color);
-	SDL_Texture *hello_texture = SDL_CreateTextureFromSurface(renderer, hello_surface);
-	SDL_FRect text_rect = {.x = 10.0f, .y = 10.0f, .w = (float)hello_surface->w, .h = (float)hello_surface->h};
-	SDL_RenderTexture(renderer, hello_texture, NULL, &text_rect);
+	text_output("Hello world. This is Tensor Virtual VM.", 255, 255, 255, true);
+}
+
+void text_uproll(void)
+{
+	text_node pioneer = text_head;
+	text_node dead_pioneer;
+	clear_screen();
+	while (pioneer)
+	{
+		if (pioneer->line)
+		{
+			pioneer->line--;
+			pioneer->rect->y -= 28.0f;
+			SDL_RenderTexture(renderer, pioneer->texture, NULL, pioneer->rect);
+			pioneer = pioneer->next;
+		}
+		else
+		{
+			dead_pioneer = pioneer;
+			pioneer = pioneer->next;
+			text_head = pioneer;
+			SDL_DestroyTexture(dead_pioneer->texture);
+			free(dead_pioneer->rect);
+			free(dead_pioneer);
+		}
+	}
 	SDL_RenderPresent(renderer);
-	SDL_Delay(16);
+	SDL_RenderPresent(renderer);
+}
+
+void text_output(const char *text, uint8_t red, uint8_t green, uint8_t blue, bool nextline)
+{
+	if (line_index > display_mode->h / 59)
+	{
+		Log(DEBUG, "Line: %d", line_index);
+		text_uproll();
+		line_index--;
+	}
+
+	text_node new_node = NULL;
+	SDL_Color sdl_color =  (SDL_Color){red, green, blue};
+	SDL_Surface *text_surface = TTF_RenderText_Solid(default_font, text, strlen(text), sdl_color);
+	if ((new_node = (text_node)malloc(sizeof(_text_node))) == NULL)
+	{
+		Log(ERROR, "Failed to render new text. malloc() returned NULL.");
+		return;
+	}
+
+	new_node->texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+	if ((new_node->rect = (SDL_FRect *)malloc(sizeof(SDL_FRect))) == NULL)
+	{
+		Log(ERROR, "Failed to register memory for text rect.");
+		free(new_node);
+		return;
+	}
+	new_node->rect->x = 10.0f + (float)(line_offset * 11);
+	new_node->rect->y = 10.0f + (float)(line_index * 28);
+	new_node->rect->w = (float)text_surface->w;
+	new_node->rect->h = (float)text_surface->h;
+	new_node->line = line_index;
+
+	new_node->next = NULL;
+
+	if (text_head == NULL)	text_head = new_node;
+	if (text_tail != NULL)	text_tail->next = new_node;
+	text_tail = new_node;
+
+	SDL_RenderTexture(renderer, text_tail->texture, NULL, text_tail->rect);
+	if (nextline && line_index <= display_mode->h / 28)
+	{
+		line_index++;
+		line_offset = 0;
+	}
+	else	line_offset += strlen(text);
+
+	SDL_RenderPresent(renderer);
 	SDL_RenderPresent(renderer);
 }
 

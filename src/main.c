@@ -125,7 +125,12 @@ int main(int argc, char *argv[], char **envp)
 		}
 
 		if (!strcmp(input, "reg"))		show_reg();
-		if (!strcmp(input, "boot"))		{clear_screen(); hello(); vm_boot();}
+		if (!strcmp(input, "boot"))		{clear_screen(); hello(); text_output("Line 1.", 255, 255, 255, 1); text_output("Line 2.", 0, 255, 0, 0); text_output("Line 2.next.", 0, 0, 255, 0);
+			for (int i = 0; i < 100; i++)
+			{
+				text_output("Line new.", 255, 255, 255, true);
+			}
+			vm_boot();}
 		if (!strcmp(input, "c"))		vm_continue();
 		if (!strcmp(input, "instr"))	show_instr();
 		if (!strcmp(input, "clear"))	printf("\033[2J\033[H"); // like system("clear");
