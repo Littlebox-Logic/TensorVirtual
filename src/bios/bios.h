@@ -13,6 +13,7 @@
 #define MBR_BASE	0x7C00
 
 int bios_init(void);
+void bios_rom_int(void);
 void show_mbr_sector(uint8_t *);
 extern vmfloppy image_A;
 

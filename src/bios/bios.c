@@ -30,10 +30,17 @@ void show_mbr_sector(uint8_t *boot_sector)
 	printf("\n\033[0m");
 }
 
+void bios_rom_int(void)
+{
+	vmram->part.rom.part.bios[0xFF0A] = 0x0F;	// INT 13h
+	vmram->part.rom.part.bios[0xFF0B] = 0x1F;	// developing...
+}
+
 int bios_init(void)
 {
 	Log(INFO, "Initialing BIOS.");
 	Log(DEBUG, "Skipped Power-On Self-Test (POST).");
+	bios_rom_int();
 	// 初始化硬件设备暂时略去.
 	// 暂定引导设备为 boot.img (1.44 MiB)
 	if ((image_A = insert_flp("boot.img", 'A')) == NULL)	goto FAIL;
