@@ -8,7 +8,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-void clear_screen(void);
+void clear_screen(bool);
+void text_free(void);
 void hello(void);
 void text_uproll(void);
 void text_output(const char *, uint8_t, uint8_t, uint8_t, bool);

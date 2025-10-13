@@ -31,7 +31,7 @@ uint16_t	line_offset = 0;
 text_node	text_head = NULL;
 text_node	text_tail = NULL;
 
-void clear_screen(void)
+void clear_screen(bool line_reset)
 {
 	const uint8_t border_thickness = 1;
 	SDL_FRect border_rects[4];
@@ -49,13 +49,20 @@ void clear_screen(void)
 
 	for (uint8_t index = 0; index < 4; index++)	SDL_RenderFillRect(renderer, &border_rects[index]);
 	#ifdef __linux__
-	if (!!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	overlay_present();
-	else
+	// if (!strcmp(SDL_GetCurrentVideoDriver(), "kmsdrm"))	overlay_present();
+	// else
 	#endif
 	{
+		// SDL_FlushRenderer(renderer);
 		SDL_RenderPresent(renderer);
 	}
-	Log(INFO, "Cleared workspace screen.");
+
+	if (line_reset)
+	{
+		line_index = 0;
+		text_free();
+	}
+	// Log(INFO, "Cleared workspace screen.");
 }
 
 void hello(void)
@@ -63,11 +70,26 @@ void hello(void)
 	text_output("Hello world. This is Tensor Virtual VM.", 255, 255, 255, true);
 }
 
+void text_free(void)
+{
+	text_node temp_node;
+	text_tail = NULL;
+	while (text_head)
+	{
+		temp_node = text_head;
+		text_head = text_head->next;
+		SDL_DestroyTexture(temp_node->texture);
+		free(temp_node->rect);
+		free(temp_node);
+	}
+}
+
 void text_uproll(void)
 {
 	text_node pioneer = text_head;
 	text_node dead_pioneer;
-	clear_screen();
+	clear_screen(false);
+
 	while (pioneer)
 	{
 		if (pioneer->line)
@@ -87,7 +109,8 @@ void text_uproll(void)
 			free(dead_pioneer);
 		}
 	}
-	SDL_RenderPresent(renderer);
+
+	// SDL_FlushRenderer(renderer);
 	SDL_RenderPresent(renderer);
 }
 
@@ -95,7 +118,6 @@ void text_output(const char *text, uint8_t red, uint8_t green, uint8_t blue, boo
 {
 	if (line_index > display_mode->h / 59)
 	{
-		Log(DEBUG, "Line: %d", line_index);
 		text_uproll();
 		line_index--;
 	}
@@ -123,6 +145,7 @@ void text_output(const char *text, uint8_t red, uint8_t green, uint8_t blue, boo
 	new_node->line = line_index;
 
 	new_node->next = NULL;
+	SDL_DestroySurface(text_surface);
 
 	if (text_head == NULL)	text_head = new_node;
 	if (text_tail != NULL)	text_tail->next = new_node;
@@ -136,7 +159,7 @@ void text_output(const char *text, uint8_t red, uint8_t green, uint8_t blue, boo
 	}
 	else	line_offset += strlen(text);
 
-	SDL_RenderPresent(renderer);
+	// SDL_FlushRenderer(renderer);
 	SDL_RenderPresent(renderer);
 }
 

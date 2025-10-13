@@ -86,12 +86,12 @@ int main(int argc, char *argv[], char **envp)
 	Log(INFO, "Booting <8086 Real-Mode>.");
 
 	if (cpu_init())		goto HALT;
-	show_reg();
+	show_reg(false);
 	if (mem_init())		goto HALT;
 	rom_int();
 	if (monitor_init())	goto HALT;
 
-	pthread_create(&monitor_sdl_thread, NULL, monitor_thread, NULL); 
+	//pthread_create(&monitor_sdl_thread, NULL, monitor_thread, NULL); 
 	Log(INFO, "Monitor status: \033[;92mPower-On\033[;97m.");
 
 	Log(ERROR, "No Bootable device found.");
@@ -124,13 +124,19 @@ int main(int argc, char *argv[], char **envp)
 			break;
 		}
 
-		if (!strcmp(input, "reg"))		show_reg();
-		if (!strcmp(input, "boot"))		{clear_screen(); hello(); text_output("Line 1.", 255, 255, 255, 1); text_output("Line 2.", 0, 255, 0, 0); text_output("Line 2.next.", 0, 0, 255, 0);
-			for (int i = 0; i < 100; i++)
+		if (!strcmp(input, "reg"))		show_reg(true);
+		if (!strcmp(input, "boot"))		{clear_screen(true); hello(); vm_boot();}
+		if (!strcmp(input, "play"))
+		{
+			clear_screen(true);
+			text_output("Line 1.", 255, 255, 255, 1);
+			text_output("Line 2.", 0, 255, 0, 0);
+			text_output("Line 2.next.", 0, 0, 255, 0);
+			for (int i = 0; i < 80; i++)
 			{
 				text_output("Line new.", 255, 255, 255, true);
 			}
-			vm_boot();}
+		}
 		if (!strcmp(input, "c"))		vm_continue();
 		if (!strcmp(input, "instr"))	show_instr();
 		if (!strcmp(input, "clear"))	printf("\033[2J\033[H"); // like system("clear");
@@ -142,7 +148,8 @@ int main(int argc, char *argv[], char **envp)
 	}
 
 	monitor_on = false;
-	pthread_join(monitor_sdl_thread, NULL);
+	//pthread_join(monitor_sdl_thread, NULL);
+	text_free();
 
 HALT:
 	free(reg);

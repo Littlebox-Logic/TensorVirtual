@@ -18,12 +18,12 @@ bool monitor_on = true;
 
 int monitor_init(void)
 {
-/*	if (!SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SDL_RENDER_DRIVER", "software", true))
+	if (!SDL_SetEnvironmentVariable(SDL_GetEnvironment(), "SDL_RENDER_DRIVER", "software", true))
 	{
 		Log(ERROR, "Failed to set SDL environment variable: %s", SDL_GetError());
 		return -1;
 	}
-*/
+
 	uint8_t drivers_num = SDL_GetNumVideoDrivers();
 	Log(INFO, "Detected video driver number : %u", drivers_num);
 	for (uint8_t index = 0; index < drivers_num; index++)	Log(INFO, "Video Driver %d: %s", index, SDL_GetVideoDriver(index));
@@ -82,7 +82,7 @@ int monitor_init(void)
 		SDL_Quit();
 	}
 	SDL_DestroyProperties(props);
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
 	#ifdef __linux__
 	SDL_Rect viewport;

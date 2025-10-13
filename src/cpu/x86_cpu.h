@@ -9,7 +9,7 @@
 
 int cpu_init(void);
 void cpu_reset(void);
-void show_reg(void);
+void show_reg(bool);
 void rom_int(void);
 
 extern reg_p reg;

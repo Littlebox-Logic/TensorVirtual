@@ -8,6 +8,7 @@
 #include "instr_set.h"
 #include "../virtual_machine.h"
 #include "../log.h"
+#include "../monitor/display_core.h"
 
 /* ______________________________________________________________________
  * | FLAGS Register														|
@@ -78,12 +79,13 @@ void int_return(void)
 void rom_int_0(void)	// Divide Error
 {
 	printf("\033[;91mINT 00h: Divide Error!\033[0m\n");
+	text_output("INT 00h: Divide Error!", 255, 0, 0, true);
 	int_return();
 }
 
 void rom_int_1(void)	// Single-step Debug
 {
-	show_reg();
+	show_reg(true);
 	show_instr();
 	int_return();
 }
@@ -91,12 +93,13 @@ void rom_int_1(void)	// Single-step Debug
 void rom_int_2(void)	// NMI		*** Developing.
 {
 	printf("\033[;91mINT 02h: NMI Error!\033[0m\n");
+	text_output("INT 02h: NMI Error!", 255, 0, 0, true);
 	int_return();
 }
 
 void rom_int_3(void)	// Debug
 {
-	show_reg();
+	show_reg(true);
 	show_instr();
 	int_return();
 }
@@ -104,5 +107,6 @@ void rom_int_3(void)	// Debug
 void rom_int_4(void)
 {
 	printf("\033[;91mINT 04h: Arithmetic Overflow!\033[0m\n");
+	text_output("INT 04h: Arithmetic Overflow!", 255, 0, 0, true);
 	int_return();
 }

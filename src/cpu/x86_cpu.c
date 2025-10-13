@@ -7,6 +7,7 @@
 #include "instr_set.h"
 #include "../memory/x86_mem.h"
 #include "../log.h"
+#include "../monitor/display_core.h"
 
 reg_p reg = NULL;
 
@@ -63,8 +64,9 @@ void rom_int(void)
 	Log(INFO, "Registered ROM-Built-in interruptions 0x00 - 0x04.");
 }
 
-void show_reg(void)
+void show_reg(bool enable_monitor)
 {
+	char reg_info[60] = {'\0'};
 	Log(INFO, "Reading REGISTERS data.");
 	printf("\nRegister INFO:\n\
 \tAX: 0x\033[;97m%04X\033[0m\tBX\t: 0x\033[;97m%04X\033[0m\tCX: 0x\033[;97m%04X\033[0m\tDX: 0x\033[;97m%04X\033[0m\n\
@@ -74,6 +76,19 @@ void show_reg(void)
 									reg->si, reg->di, reg->bp, reg->sp,\
 									reg->cs, reg->ds,reg->es, reg->ss,\
 									reg->ip, reg->flags);
+
+	if (enable_monitor)
+	{
+		text_output("Register INFO:", 255, 255, 255, true);
+		sprintf(reg_info, "    AX: 0x%04X    BX   : 0x%04X    CX: 0x%04X    DX: 0x%04X", reg->ax, reg->bx, reg->cx, reg->dx);
+		text_output(reg_info, 255, 255, 255, true);
+		sprintf(reg_info, "    SI: 0x%04X    DI   : 0x%04X    BP: 0x%04X    SP: 0x%04X", reg->si, reg->di, reg->bp, reg->sp);
+		text_output(reg_info, 255, 255, 255, true);
+		sprintf(reg_info, "    CS: 0x%04X    DS   : 0x%04X    ES: 0x%04X    SS: 0x%04X", reg->cs, reg->ds, reg->es, reg->ss);
+		text_output(reg_info, 255, 255, 255, true);
+		sprintf(reg_info, "    IP: 0x%04X    FLAGS: 0x%04X", reg->ip, reg->flags);
+		text_output(reg_info, 255, 255, 255, true);
+	}
 }
 
 int instr_parse(uint32_t addr)
