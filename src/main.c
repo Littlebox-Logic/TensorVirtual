@@ -40,7 +40,7 @@ int main(int argc, char *argv[], char **envp)
 	using_history();
 	#endif
 
-	pthread_t monitor_sdl_thread;
+	// pthread_t monitor_sdl_thread;
 
 	printf("Logic \033[;97mTensor VM\033[0m (Pre-alpha)\n\tBuild-0.1.0.0\n\tCoded by Logic.\n\n");
 

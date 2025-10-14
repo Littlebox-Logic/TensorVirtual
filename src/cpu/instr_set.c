@@ -5,7 +5,10 @@
 #include "instr_set.h"
 #include "x86_cpu.h"
 #include "interrupt.h"
+#include "../bios/bios_interrupt.h"
 #include "../memory/x86_mem.h"
+#include "../monitor/display_core.h"
+#include "../virtual_machine.h"
 #include "../log.h"
 
 /* __________________________________________________________________
@@ -63,6 +66,9 @@
 // SP: "Stack Pointer Register" (16-bit: 0x0000 -> 0xFFFF)
 // Max stack segment: 64 KiB
 
+#define SAVE_LEVEL 64
+uint16_t save_count = 0;
+
 void csip_debug(void)
 {
 	Log(DEBUG, "CS:IP -> \033[;32m0x\033[;92m%04X\033[;32m:0x\033[;92m%04X\033[;97m -> \033[;32m0x\033[;92m%05X.\033[;97m -> INST \033[;32m0x\033[;92m%02X\033[;97m", reg->cs, reg->ip, (reg->cs << 4) + reg->ip, vmram->ram[(reg->cs << 4) + reg->ip]);
@@ -84,7 +90,8 @@ void next_instr(uint8_t instr_length)
 int operation_parse(uint32_t addr)
 {
 	uint8_t instr_length = 1;			// Default: single-byte operate code.
-	uint16_t *reg_table[8] = {&(reg->ax), &(reg->cx), &(reg->dx), &(reg->bx), &(reg->sp), &(reg->bp), &(reg->si), &(reg->di)};
+	uint16_t *reg_table[8]	= {&(reg->ax), &(reg->cx), &(reg->dx), &(reg->bx), &(reg->sp), &(reg->bp), &(reg->si), &(reg->di)};
+	uint16_t *sreg_table[4]	= {&(reg->es), &(reg->cs), &(reg->ss), &(reg->ds)};
 
 	switch (vmram->ram[addr])			// Attention: ``Case Range'' ONLY for ``GNU C''.
 	{
@@ -92,11 +99,13 @@ int operation_parse(uint32_t addr)
 			instr_length = 0;
 			switch (vmram->ram[addr + 1])
 			{
-				case 0x1A: rom_int_0(); break;
-				case 0x1B: rom_int_1(); return 1;
-				case 0x1C: rom_int_2(); break;
-				case 0x1D: rom_int_3(); break;
-				case 0x1E: rom_int_4(); break;
+				case 0x1A: rom_int_0();		break;
+				case 0x1B: rom_int_1();		return 1;
+				case 0x1C: rom_int_2();		break;
+				case 0x1D: rom_int_3();		break;
+				case 0x1E: rom_int_4();		break;
+				case 0x2A: bios_int_10();	break;
+				default  : instr_length = 2;
 			}
 			break;
 
@@ -116,6 +125,29 @@ int operation_parse(uint32_t addr)
 		case 0x54:
 			memcpy(&(vmram->ram[(reg->ss << 4) + reg->sp]), &reg->sp, 2); // Special operation order.
 			reg->sp -= 2;
+			break;
+
+		case 0x88 ... 0x8B:				// MOV r16, r16	(0b 100010dw 11rrrmmm)	*
+			;
+			break;
+
+		case 0x8C:						// 8C /r : 8C mod reg r/m. MOV for segment registers.
+			instr_length = 2;
+			if (vmram->ram[addr + 1] >> 6 == 0b11)	// Register mode	: MOV r16, sreg
+				*reg_table[vmram->ram[addr + 1] & 0b00000111] = *sreg_table[vmram->ram[addr + 1] >> 3 & 0b00000111];
+			else									// Memory mode		: MOV mem16, sreg
+			{
+				;									// *** developing.
+			}
+			break;
+		case 0x8E:						// MOV DS, [...]	or 8E /r: mov sreg, rrr	*
+			instr_length = 2;
+			if (vmram->ram[addr + 1] >> 6 == 0b11)	// Register mode	: MOV sreg, r16
+				*sreg_table[vmram->ram[addr + 1] >> 3 & 0b00000111] = *reg_table[vmram->ram[addr + 1] & 0b00000111]; 
+			else									// Memory mode		: MOV sreg, mem16
+			{
+				;									// *** developing.
+			}
 			break;
 
 		case 0x90: break;				// NOP (single-byte operate code).
@@ -166,6 +198,15 @@ int operation_parse(uint32_t addr)
 
 	next_instr(instr_length);
 	if (reg->flags & 0x0100)	return 1;
+
+	save_count++;
+	if (save_count >= SAVE_LEVEL)
+	{
+		text_output("Save Mode Enabled: paused.", 255, 0, 0, true);
+		show_reg(true);
+		show_instr();
+		return 1;
+	}
 
 	return 0;
 }

@@ -2,6 +2,11 @@
 
 #include "bios_interrupt.h"
 #include "../cpu/x86_cpu.h"
+#include "../cpu/interrupt.h"
+#include "../memory/x86_mem.h"
+#include "../monitor/display_core.h"
+
+#include <string.h>
 
 void bios_int_5(void)	// Print Screen.
 {
@@ -29,7 +34,7 @@ void bios_int_10(void)	// Video Service.
 		case 0x13:		// write string. 	-- developing.
 			char *string = (char *)malloc(reg->cx + 1);
 			memset(string, '\0', reg->cx + 1);
-			strncpy(string, (reg->es << 4) + reg->bp;
+			strncpy(string, (char *)&vmram->ram[(reg->es << 4) + reg->bp], reg->cx);
 			text_output(string, 255, 255, 255, false);
 			free(string);
 			break;
@@ -46,4 +51,6 @@ void bios_int_10(void)	// Video Service.
 		// Other.
 		case 0x0B:	;
 	}
+
+	int_return();
 }

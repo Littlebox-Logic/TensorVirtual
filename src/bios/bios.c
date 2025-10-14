@@ -32,8 +32,29 @@ void show_mbr_sector(uint8_t *boot_sector)
 
 void bios_rom_int(void)
 {
-	vmram->part.rom.part.bios[0xFF0A] = 0x0F;	// INT 13h
-	vmram->part.rom.part.bios[0xFF0B] = 0x1F;	// developing...
+	for (uint8_t pointer = 0x08; pointer <= 0x1F; pointer++)
+	{
+		vmram->part.rom.part.bios[0xFF00 + pointer * 2]		= 0x0F;		// INT.
+		vmram->part.rom.part.bios[0xFF00 + pointer * 2 + 1]	= 0x1A + pointer;
+		vmram->ram[pointer * 4] = pointer * 2;
+		vmram->ram[pointer * 4 + 1] = 0xFF;
+		vmram->ram[pointer * 4 + 2] = 0x00;
+		vmram->ram[pointer * 4 + 3] = 0xF0;
+	}
+
+	vmram->part.rom.part.bios[0xFF00 + 0x41 * 2]	 = 0x0F;		// INT.
+	vmram->part.rom.part.bios[0xFF00 + 0x41 * 2 + 1] = 0x1A + 0x41;
+	vmram->ram[0x41 * 4] = 0x41 * 2;
+	vmram->ram[0x41 * 4 + 1] = 0xFF;
+	vmram->ram[0x41 * 4 + 2] = 0x00;
+	vmram->ram[0x41 * 4 + 3] = 0xF0;
+
+	vmram->part.rom.part.bios[0xFF00 + 0x46 * 2]	 = 0x0F;		// INT.
+	vmram->part.rom.part.bios[0xFF00 + 0x46 * 2 + 1] = 0x1A + 0x46;
+	vmram->ram[0x46 * 4] = 0x46 * 2;
+	vmram->ram[0x46 * 4 + 1] = 0xFF;
+	vmram->ram[0x46 * 4 + 2] = 0x00;
+	vmram->ram[0x46 * 4 + 3] = 0xF0;
 }
 
 int bios_init(void)
