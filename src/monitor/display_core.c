@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #ifdef __linux__
 #include <sys/mman.h>
@@ -112,6 +113,59 @@ void text_uproll(void)
 
 	// SDL_FlushRenderer(renderer);
 	SDL_RenderPresent(renderer);
+}
+
+int print_m(const char *string)
+{
+	size_t len = strlen(string);
+	uint64_t head = 0, tail = 0;
+	char *temp_string;
+	if (!(temp_string = (char *)malloc(len + 1)))
+	{
+		Log(ERROR, "Failed to print to monitor.");
+		return -1;
+	}
+
+	for (size_t index = 0; index < len; index++)
+	{
+		switch (string[index])	// \033[m will be developing.
+		{
+			case '\t':
+				if (tail - head)
+				{
+					memset(temp_string, '\0', tail - head + 1);
+					strncpy(temp_string, &string[head], tail - head);
+					text_output(temp_string, 255, 255, 255, false);
+				}
+				for (uint8_t times = 0; times < (4 - line_offset % 4); times++)	text_output(" ", 0, 0, 0, false);
+				head = index + 1;
+				tail = head;
+				break;
+			case '\n':
+				if (tail - head)
+				{
+					memset(temp_string, '\0', tail - head + 1);
+					strncpy(temp_string, &string[head], tail - head);
+					text_output(temp_string, 255, 255, 255, true);
+				}
+				else	text_output(" ", 255, 255, 255, true);
+				head = index + 1;
+				tail = head;
+				break;
+			default:
+				tail++;
+		}
+	}
+
+	if (string[len - 1] != '\t' && string[len - 1] != '\t')
+	{
+		memset(temp_string, '\0', tail - head + 1);
+		strncpy(temp_string, &string[head], tail - head);
+		text_output(temp_string, 255, 255, 255, false);
+	}
+
+	free(temp_string);
+	return 0;
 }
 
 void text_output(const char *text, uint8_t red, uint8_t green, uint8_t blue, bool nextline)

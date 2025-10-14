@@ -132,10 +132,11 @@ int main(int argc, char *argv[], char **envp)
 			text_output("Line 1.", 255, 255, 255, 1);
 			text_output("Line 2.", 0, 255, 0, 0);
 			text_output("Line 2.next.", 0, 0, 255, 0);
-			for (int i = 0; i < 80; i++)
+			/*for (int i = 0; i < 80; i++)
 			{
 				text_output("Line new.", 255, 255, 255, true);
-			}
+			}*/
+			print_m("HELLO\thello\t123\nhellohello.\t\ttable test\ttest.\nline test.\n\tnew table.\t\nnull table.");
 		}
 		if (!strcmp(input, "c"))		vm_continue();
 		if (!strcmp(input, "instr"))	show_instr();

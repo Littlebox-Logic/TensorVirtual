@@ -12,6 +12,7 @@ void clear_screen(bool);
 void text_free(void);
 void hello(void);
 void text_uproll(void);
+int print_m(const char *);
 void text_output(const char *, uint8_t, uint8_t, uint8_t, bool);
 
 typedef struct _Text_node
