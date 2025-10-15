@@ -174,21 +174,26 @@ void text_output(const char *text, uint8_t red, uint8_t green, uint8_t blue, boo
 	}
 
 	text_node new_node = NULL;
-	SDL_Color sdl_color =  (SDL_Color){red, green, blue};
-	SDL_Surface *text_surface = TTF_RenderText_Solid(default_font, text, strlen(text), sdl_color);
+	SDL_Color sdl_fgcolor = (SDL_Color){red, green, blue};
+	// SDL_Color sdl_bgcolor = (SDL_Color){0, 0, 0};
+	SDL_Surface *text_surface = TTF_RenderText_Blended(default_font, text, strlen(text), sdl_fgcolor);
 	if ((new_node = (text_node)malloc(sizeof(_text_node))) == NULL)
 	{
 		Log(ERROR, "Failed to render new text. malloc() returned NULL.");
 		return;
 	}
 
-	new_node->texture = SDL_CreateTextureFromSurface(renderer, text_surface);
 	if ((new_node->rect = (SDL_FRect *)malloc(sizeof(SDL_FRect))) == NULL)
 	{
 		Log(ERROR, "Failed to register memory for text rect.");
 		free(new_node);
 		return;
 	}
+
+	// SDL_Rect temp_rect = (SDL_Rect){10 + line_offset * 12, 10 + line_index * 28, text_surface->w, text_surface->h};
+
+	// SDL_FillSurfaceRect(text_surface, NULL, 0x8600FF);//SDL_MapRGB(text_surface->format, NULL, 0, 0, 0));
+	new_node->texture = SDL_CreateTextureFromSurface(renderer, text_surface);
 	new_node->rect->x = 10.0f + (float)(line_offset * 12);
 	new_node->rect->y = 10.0f + (float)(line_index * 28);
 	new_node->rect->w = (float)text_surface->w;
