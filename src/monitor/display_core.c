@@ -115,6 +115,18 @@ void text_uproll(void)
 	SDL_RenderPresent(renderer);
 }
 
+void head_tail_fill(const char *string, char *temp_string, uint64_t *phead, uint64_t *ptail, size_t index)
+{
+	if (*ptail - *phead)
+	{
+		memset(temp_string, '\0', *ptail - *phead + 1);
+		strncpy(temp_string, &string[*phead], *ptail - *phead);
+		text_output(temp_string, 255, 255, 255, false);
+	}
+
+	*ptail = *phead = index + 1;
+}
+
 int print_m(const char *string)
 {
 	size_t len = strlen(string);
@@ -131,33 +143,23 @@ int print_m(const char *string)
 		switch (string[index])	// \033[m will be developing.
 		{
 			case '\t':
-				if (tail - head)
-				{
-					memset(temp_string, '\0', tail - head + 1);
-					strncpy(temp_string, &string[head], tail - head);
-					text_output(temp_string, 255, 255, 255, false);
-				}
-				for (uint8_t times = 0; times < (4 - line_offset % 4); times++)	text_output(" ", 0, 0, 0, false);
-				head = index + 1;
-				tail = head;
+				head_tail_fill(string, temp_string, &head, &tail, index);
+				for (uint8_t times = 0; times < (8 - (line_offset + 1) % 8); times++)	text_output(" ", 0, 0, 0, false);
 				break;
 			case '\n':
-				if (tail - head)
-				{
-					memset(temp_string, '\0', tail - head + 1);
-					strncpy(temp_string, &string[head], tail - head);
-					text_output(temp_string, 255, 255, 255, true);
-				}
-				else	text_output(" ", 255, 255, 255, true);
-				head = index + 1;
-				tail = head;
+				head_tail_fill(string, temp_string, &head, &tail, index);
+				text_output(" ", 255, 255, 255, true);
+				break;
+			case '\b':
+				head_tail_fill(string, temp_string, &head, &tail, index);
+				line_offset--;
 				break;
 			default:
 				tail++;
 		}
 	}
 
-	if (string[len - 1] != '\t' && string[len - 1] != '\t')
+	if (string[len - 1] != '\t' && string[len - 1] != '\n')
 	{
 		memset(temp_string, '\0', tail - head + 1);
 		strncpy(temp_string, &string[head], tail - head);

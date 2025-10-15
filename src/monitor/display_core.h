@@ -12,6 +12,7 @@ void clear_screen(bool);
 void text_free(void);
 void hello(void);
 void text_uproll(void);
+void head_tail_fill(const char *, char *, uint64_t *, uint64_t *, size_t);
 int print_m(const char *);
 void text_output(const char *, uint8_t, uint8_t, uint8_t, bool);
 

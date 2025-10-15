@@ -64,7 +64,7 @@ int monitor_init(void)
 	SDL_SetWindowPosition(window, display_mode->w / 2, 0);
 	if (!SDL_SetWindowSurfaceVSync(window, SDL_WINDOW_SURFACE_VSYNC_ADAPTIVE))
 	{
-		Log(ERROR, "Failed to enable VSync: %s", SDL_GetError());
+		Log(WARN, "Failed to enable VSync: %s", SDL_GetError());
 		/*SDL_DestroyWindow(window);
 		TTF_Quit();
 		SDL_Quit();*/

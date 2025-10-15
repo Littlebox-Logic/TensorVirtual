@@ -94,7 +94,7 @@ int main(int argc, char *argv[], char **envp)
 	//pthread_create(&monitor_sdl_thread, NULL, monitor_thread, NULL); 
 	Log(INFO, "Monitor status: \033[;92mPower-On\033[;97m.");
 
-	Log(ERROR, "No Bootable device found.");
+	Log(ERROR, "No Bootable device assigned.");
 	Log(WARN, "No Virtual Mathine is running.");
 	Log(DEBUG, "Starting DEBUG-mode.\n");
 
@@ -136,7 +136,7 @@ int main(int argc, char *argv[], char **envp)
 			{
 				text_output("Line new.", 255, 255, 255, true);
 			}*/
-			print_m("HELLO\thello\t123\nhellohello.\t\ttable test\ttest.\nline test.\n\tnew table.\t\nnull table.");
+			print_m("HELLO\thello\t123\nhellohello.\t\ttable test\ttest.\nline test.\n\tnew table.\t\nnull table.\033[;92m");
 		}
 		if (!strcmp(input, "c"))		vm_continue();
 		if (!strcmp(input, "instr"))	show_instr();
