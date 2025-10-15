@@ -125,7 +125,13 @@ int main(int argc, char *argv[], char **envp)
 		}
 
 		if (!strcmp(input, "reg"))		show_reg(true);
-		if (!strcmp(input, "boot"))		{clear_screen(true); hello(); vm_boot();}
+		if (!strcmp(input, "boot"))
+		{
+			clear_screen(true);
+			text_output("Hello world. This is Tensor Virtual VM.", 255, 255, 255, true);
+			text_output("虚拟机已连接显示器", 0, 255, 0,true);
+			vm_boot();
+		}
 		if (!strcmp(input, "play"))
 		{
 			clear_screen(true);

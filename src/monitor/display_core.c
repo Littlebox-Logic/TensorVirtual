@@ -66,11 +66,6 @@ void clear_screen(bool line_reset)
 	// Log(INFO, "Cleared workspace screen.");
 }
 
-void hello(void)
-{
-	text_output("Hello world. This is Tensor Virtual VM.", 255, 255, 255, true);
-}
-
 void text_free(void)
 {
 	text_node temp_node;
@@ -144,7 +139,7 @@ int print_m(const char *string)
 		{
 			case '\t':
 				head_tail_fill(string, temp_string, &head, &tail, index);
-				for (uint8_t times = 0; times < (8 - (line_offset + 1) % 8); times++)	text_output(" ", 0, 0, 0, false);
+				for (uint8_t times = 0; times < 8 - (line_offset + 1) % 8; times++)	text_output(" ", 0, 0, 0, false);	// ts = 4 (althrough seemly 8).
 				break;
 			case '\n':
 				head_tail_fill(string, temp_string, &head, &tail, index);
@@ -194,7 +189,7 @@ void text_output(const char *text, uint8_t red, uint8_t green, uint8_t blue, boo
 		free(new_node);
 		return;
 	}
-	new_node->rect->x = 10.0f + (float)(line_offset * 11);
+	new_node->rect->x = 10.0f + (float)(line_offset * 12);
 	new_node->rect->y = 10.0f + (float)(line_index * 28);
 	new_node->rect->w = (float)text_surface->w;
 	new_node->rect->h = (float)text_surface->h;

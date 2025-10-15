@@ -34,7 +34,7 @@ int monitor_init(void)
 		return -1;
 	}
 
-	if(!(default_font = TTF_OpenFont("lib/DejaVuSansMono.ttf", 18.0f)))
+	if(!(default_font = TTF_OpenFont("lib/SourceHanMono-Regular.otf", 18.0f)))	// previous: DejaVuSansMono.ttf
 	{
 		Log(ERROR, "Failed to load default True-type font: DejaVu Sans Mono: %s", SDL_GetError());	// TTF_GetError();
 		TTF_Quit();
